@@ -47,14 +47,16 @@ QSqlError Database::init(const QString &filename)
     if(!mDatabase.open())
         return mDatabase.lastError();
 
+    // Включаем поддержку внешних ключей
+    QSqlQuery query(mDatabase);
+    query.exec("PRAGMA foreign_keys = ON;");
+
     QStringList databaseTables = mDatabase.tables();
 
     bool userExist = databaseTables.contains("user", Qt::CaseInsensitive);
     bool questionExist = databaseTables.contains("question", Qt::CaseInsensitive);
     bool cipherExist = databaseTables.contains("cipher", Qt::CaseInsensitive);
     bool associationExist = databaseTables.contains("association", Qt::CaseInsensitive);
-
-    QSqlQuery query(mDatabase);
 
     if(!userExist)
         if(!query.exec(CREATE_USER))
