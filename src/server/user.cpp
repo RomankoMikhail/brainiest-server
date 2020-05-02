@@ -1,6 +1,6 @@
-#include "User.hpp"
+#include "user.hpp"
 
-#include "Singleton.hpp"
+#include "singleton.hpp"
 #include <QString>
 
 const auto CREATE_USER = QString(R"(INSERT INTO `user`

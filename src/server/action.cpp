@@ -1,4 +1,4 @@
-#include "Action.hpp"
+#include "action.hpp"
 
 void Action::add(const QString &commandName, Action::ActionCallback action, const RequiredArguments &args)
 {

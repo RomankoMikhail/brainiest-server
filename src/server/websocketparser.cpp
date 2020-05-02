@@ -1,4 +1,4 @@
-#include "WebSocketParser.hpp"
+#include "websocketparser.hpp"
 #include <QtEndian>
 
 WebSocketParser::WebSocketParser(QObject *parent) : QObject(parent)

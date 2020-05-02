@@ -1,7 +1,7 @@
-#include "Actions.hpp"
-#include "Singleton.hpp"
-#include "User.hpp"
-#include "WebServer.hpp"
+#include "actions.hpp"
+#include "singleton.hpp"
+#include "user.hpp"
+#include "webserver.hpp"
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>

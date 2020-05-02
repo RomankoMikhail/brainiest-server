@@ -1,8 +1,8 @@
 #ifndef SOCKETCONTEXT_HPP
 #define SOCKETCONTEXT_HPP
 
-#include "HttpPacket.hpp"
-#include "WebSocketFrame.hpp"
+#include "httppacket.hpp"
+#include "websocketframe.hpp"
 #include <QTcpSocket>
 
 struct SocketContext

@@ -1,4 +1,4 @@
-#include "Cookie.hpp"
+#include "cookie.hpp"
 
 QVector<Cookie> Cookie::fromFieldValue(const QString &value)
 {

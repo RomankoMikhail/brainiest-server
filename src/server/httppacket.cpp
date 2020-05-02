@@ -1,4 +1,4 @@
-#include "HttpPacket.hpp"
+#include "httppacket.hpp"
 #include <QTextStream>
 
 QByteArray HttpPacket::toByteArray()

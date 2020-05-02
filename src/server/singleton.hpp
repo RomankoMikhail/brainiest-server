@@ -1,8 +1,8 @@
 #ifndef SINGLETONDATABASE_HPP
 #define SINGLETONDATABASE_HPP
 
-#include "Database.hpp"
-#include "Action.hpp"
+#include "database.hpp"
+#include "action.hpp"
 
 class Singleton
 {

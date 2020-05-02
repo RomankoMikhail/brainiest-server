@@ -1,7 +1,7 @@
 #ifndef HTTPPACKET_H
 #define HTTPPACKET_H
 
-#include "Cookie.hpp"
+#include "cookie.hpp"
 #include <QDateTime>
 #include <QMap>
 #include <QMimeType>

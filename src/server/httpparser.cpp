@@ -1,4 +1,4 @@
-#include "HttpParser.hpp"
+#include "httpparser.hpp"
 
 #include <QByteArray>
 #include <QDebug>

@@ -1,7 +1,7 @@
 #ifndef WEBSOCKETPARSER_H
 #define WEBSOCKETPARSER_H
 
-#include "WebSocketFrame.hpp"
+#include "websocketframe.hpp"
 #include <QIODevice>
 #include <QObject>
 #include <QTcpSocket>

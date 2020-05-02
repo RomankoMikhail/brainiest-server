@@ -1,5 +1,5 @@
-#include "WebServer.hpp"
-#include "HttpParser.hpp"
+#include "webserver.hpp"
+#include "httpparser.hpp"
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>

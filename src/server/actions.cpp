@@ -1,6 +1,6 @@
-#include "Actions.hpp"
-#include "Singleton.hpp"
-#include "User.hpp"
+#include "actions.hpp"
+#include "singleton.hpp"
+#include "user.hpp"
 
 QJsonObject actionRegister(const QJsonObject &request)
 {

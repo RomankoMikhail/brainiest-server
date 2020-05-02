@@ -1,7 +1,7 @@
 #ifndef HTTPPARSER_H
 #define HTTPPARSER_H
 
-#include "HttpPacket.hpp"
+#include "httppacket.hpp"
 #include "http_parser.h"
 #include <QIODevice>
 #include <QObject>

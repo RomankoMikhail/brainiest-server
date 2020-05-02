@@ -1,11 +1,11 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
-#include "HttpPacket.hpp"
-#include "HttpParser.hpp"
-#include "SocketContext.hpp"
-#include "WebSocketFrame.hpp"
-#include "WebSocketParser.hpp"
+#include "httppacket.hpp"
+#include "httpparser.hpp"
+#include "socketcontext.hpp"
+#include "websocketframe.hpp"
+#include "websocketparser.hpp"
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
