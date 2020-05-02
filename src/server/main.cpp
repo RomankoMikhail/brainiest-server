@@ -126,16 +126,27 @@ int main(int argc, char *argv[])
 {
     QMimeDatabase mimeDatabase;
 
+    QString databaseName = "storage.db3";
     QString address = "127.0.0.1";
     int port        = 8080;
 
     QCoreApplication a(argc, argv);
 
-    QFile configFile;
-    configFile.setFileName("config.json");
-    configFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QSettings configuration("config.ini", QSettings::IniFormat);
 
-    QSqlError error = Singleton::database().init("storage.db3");
+    if(configuration.status() != QSettings::NoError)
+    {
+        qCritical() << "Can't read settings from config.ini";
+        return -1;
+    }
+
+    port = configuration.value("port", 8080).toInt();
+    address = configuration.value("listen", "127.0.0.1").toString();
+    webrootDirectory = configuration.value("webroot", "webroot").toString();
+    databaseName = configuration.value("database", "storage.db3").toString();
+
+
+    QSqlError error = Singleton::database().init(databaseName);
     if (error.isValid())
     {
         qCritical() << "Can't initialize database";
