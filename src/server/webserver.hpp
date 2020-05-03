@@ -2,6 +2,7 @@
 #define HTTPSERVER_H
 
 #include "httppacket.hpp"
+#include "httprequest.h"
 #include "httpparser.hpp"
 #include "socketcontext.hpp"
 #include "websocketframe.hpp"
@@ -14,7 +15,7 @@ class WebServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit WebServer(QObject *parent = nullptr);
+    explicit WebServer(qint64 maxClients = 50, qint64 keepAliveTime = 5, QObject *parent = nullptr);
     ~WebServer();
 
     bool listen(const QHostAddress &address, const quint16 &port = 8080);
@@ -32,7 +33,7 @@ private slots:
     void onReadyRead();
 
     void onWebSocketFrameParsed(QTcpSocket *socket, const WebSocketFrame &frame);
-    void onHttpPacketParsed(QTcpSocket *socket, const HttpPacket &packet);
+    void onHttpPacketParsed(QTcpSocket *socket, const HttpRequest &request);
 
     onHttpPacketFunction getHttpCallback(const QString &path);
     onWebsocketFrameFunction getWebSocketCallback(const QString &path);
@@ -52,7 +53,8 @@ private:
     QVector<SocketContext> mContexts;
 
     QTcpServer mTcpServer;
-
+    qint64 mMaxClients = 50;
+    qint64 mKeepAliveTimeout = 5000;
     qint64 mMaxRequestSize = 10485760; // 10 Mb
 };
 

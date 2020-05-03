@@ -1,8 +1,8 @@
 #include "cookie.hpp"
 
-QVector<Cookie> Cookie::fromFieldValue(const QString &value)
+QList<Cookie> Cookie::fromFieldValue(const QString &value)
 {
-    QVector<Cookie> mCookies;
+    QList<Cookie> mCookies;
 
     QStringList listOfCookies = value.split("; ");
 
@@ -25,7 +25,7 @@ QVector<Cookie> Cookie::fromFieldValue(const QString &value)
 
 QString Cookie::toField() const
 {
-    QString result = "Set-Cookie: ";
+    QString result = "set-cookie: ";
 
     result += mName + "=" + mValue;
 
@@ -61,7 +61,7 @@ QString Cookie::toField() const
         break;
     }
 
-    return result;
+    return result + "\r\n";
 }
 
 const QString &Cookie::name() const

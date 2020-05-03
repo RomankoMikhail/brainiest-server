@@ -5,10 +5,14 @@
 #include <QFileInfo>
 #include <QMimeDatabase>
 #include <QMimeType>
+#include "httprequest.h"
 
-WebServer::WebServer(QObject *parent) : QObject(parent)
+WebServer::WebServer(qint64 maxClients, qint64 keepAliveTimeout, QObject *parent) : QObject(parent)
 {
     connect(&mTcpServer, &QTcpServer::newConnection, this, &WebServer::onNewConnection);
+
+    mMaxClients = maxClients;
+    mKeepAliveTimeout = keepAliveTimeout * 1000;
 }
 
 WebServer::~WebServer()
@@ -30,6 +34,7 @@ void WebServer::closeConnections()
 
 bool WebServer::listen(const QHostAddress &address, const quint16 &port)
 {
+    mTcpServer.setMaxPendingConnections(mMaxClients);
     return mTcpServer.listen(address, port);
 }
 
@@ -40,6 +45,11 @@ void WebServer::onNewConnection()
     SocketContext context;
 
     context.socket = mTcpServer.nextPendingConnection();
+    context.timeoutTimer = new QTimer();
+
+    context.timeoutTimer->setSingleShot(true);
+    context.timeoutTimer->setInterval(mKeepAliveTimeout);
+    context.timeoutTimer->start();
 
     HttpParser *httpParser           = new HttpParser(context.socket);
     WebSocketParser *webSocketParser = new WebSocketParser(context.socket);
@@ -48,6 +58,7 @@ void WebServer::onNewConnection()
     context.socket->setProperty("webSocketParser", QVariant::fromValue(webSocketParser));
     context.socket->setProperty("context", QVariant::fromValue(context));
 
+    connect(context.timeoutTimer, &QTimer::timeout, context.socket, &QTcpSocket::close);
     connect(context.socket, &QTcpSocket::disconnected, this, &WebServer::onDisconnect);
     connect(context.socket, &QTcpSocket::readyRead, this, &WebServer::onReadyRead);
     connect(httpParser, &HttpParser::httpParsed, this, &WebServer::onHttpPacketParsed);
@@ -97,6 +108,7 @@ void WebServer::onReadyRead()
     httpParser      = socket->property("httpParser").value<HttpParser *>();
     webSocketParser = socket->property("webSocketParser").value<WebSocketParser *>();
     context         = socket->property("context").value<SocketContext>();
+    context.timeoutTimer->start();
 
     Protocols socketProtocol = static_cast<Protocols>(socket->property("protocol").toInt());
 
@@ -148,66 +160,67 @@ void WebServer::onWebSocketFrameParsed(QTcpSocket *socket, const WebSocketFrame 
     socket->flush();
 }
 
-void WebServer::onHttpPacketParsed(QTcpSocket *socket, const HttpPacket &packet)
+void WebServer::onHttpPacketParsed(QTcpSocket *socket, const HttpRequest &request)
 {
-    QString accessPath = packet.url();
+    QString accessPath = request.path();
+
+    qDebug() << accessPath;
 
     onHttpPacketFunction httpCallback = getHttpCallback(accessPath);
 
     SocketContext context;
     context = socket->property("context").value<SocketContext>();
 
-    for (const auto &upgradeStrings : packet.getValue("upgrade"))
+    for (const auto &upgradeStrings : request.headers().values("upgrade"))
     {
         if (upgradeStrings.contains("websocket", Qt::CaseInsensitive))
         {
+            context.timeoutTimer->stop();
             onWebsocketFrameFunction webSocketCallback = getWebSocketCallback(accessPath);
 
             if (webSocketCallback == nullptr)
                 break;
 
             socket->setProperty("webSocketCallback", QVariant::fromValue(webSocketCallback));
-            upgradeToWebsocket(socket, packet.getValue("Sec-WebSocket-Key").first(), true);
+            upgradeToWebsocket(socket, request.headers().values("sec-websocket-key").first(), true);
             return;
         }
     }
 
     // Вызов Callback'a
 
-    HttpPacket response;
+    HttpResponse response;
 
     if (httpCallback != nullptr)
     {
-        response = httpCallback(context, packet);
+        httpCallback(request, response);
     }
     else
     {
         static QMimeDatabase mimeDatabase;
 
-        response.setMethod(packet.method());
-        response.setStatusCode(HttpPacket::CodeNotFound);
-        response.setMajor(1);
-        response.setMinor(1);
-
-        response.setData("<h1>Not found</h1><p>The requested URL was not found</p>",
-                         mimeDatabase.mimeTypeForName("text/html"));
+        response.setStatusCode(HttpResponse::CodeNotFound);
+        response.write("<html><head></head><body>");
+        response.write("<h1>Resource not found</h1>");
+        response.write(QString("<p>The requested resource \"" + accessPath + "\" not found</p>").toUtf8());
     }
 
-    bool connectionKeepAlive = false;
+    bool connectionKeepAlive = true;
 
-    for (const auto &connectionStrings : packet.getValue("connection"))
+    for (const auto &connectionStrings : request.headers().values("connection"))
     {
-        if (connectionStrings.contains("keep-alive", Qt::CaseInsensitive))
+        if (connectionStrings.contains("close", Qt::CaseInsensitive))
         {
-            if (response.data().size() != 0)
-            {
-                connectionKeepAlive = true;
-                response.setField("connection", "keep-alive");
-            }
+                connectionKeepAlive = false;
         }
     }
 
-    socket->write(response.toByteArray());
+    if(connectionKeepAlive)
+        response.addHeader("connection", "keep-alive");
+    else
+        response.addHeader("connection", "close");
+
+    response.flush(socket);
 
     if (!connectionKeepAlive)
         socket->close();

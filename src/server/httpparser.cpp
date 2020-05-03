@@ -4,26 +4,35 @@
 #include <QDebug>
 #include <QString>
 
+int headersCallback(http_parser *parser)
+{
+    HttpParser *caller = reinterpret_cast<HttpParser *>(parser->data);
+
+    caller->headersFlush();
+
+    return 0;
+}
+
 int messageCallback(http_parser *parser)
 {
     HttpParser *caller = reinterpret_cast<HttpParser *>(parser->data);
 
     switch (parser->method)
     {
-    case 1:
-        caller->setMethod(HttpPacket::Method::MethodGet);
+    case HTTP_GET:
+        caller->setMethod("get");
         break;
 
-    case 2:
-        caller->setMethod(HttpPacket::Method::MethodHead);
+    case HTTP_HEAD:
+        caller->setMethod("head");
         break;
 
-    case 3:
-        caller->setMethod(HttpPacket::Method::MethodPost);
+    case HTTP_POST:
+        caller->setMethod("post");
         break;
 
     default:
-        caller->setMethod(HttpPacket::Method::MethodNotSupported);
+        caller->setMethod("");
         break;
     }
 
@@ -76,6 +85,7 @@ int headerValueCallback(http_parser *parser, const char *at, size_t length)
     return 0;
 }
 
+
 HttpParser::HttpParser(QObject *parent) : QObject(parent)
 {
     http_parser_settings_init(&mSettings);
@@ -86,6 +96,7 @@ HttpParser::HttpParser(QObject *parent) : QObject(parent)
     mSettings.on_header_field     = headerFieldCallback;
     mSettings.on_header_value     = headerValueCallback;
     mSettings.on_message_complete = messageCallback;
+    mSettings.on_headers_complete = headersCallback;
 
     mParser       = new http_parser();
     mParser->data = this;
@@ -108,53 +119,64 @@ void HttpParser::parse(QIODevice *device, const qint64 &peekSize)
         device->skip(skip);
 }
 
-void HttpParser::setUrl(const QString &url)
+void HttpParser::headersFlush()
 {
-    mCurrentPacket.setUrl(url);
+    mCurrentRequest.addHeader(mCurrentField, mCurrentValue);
 }
 
-void HttpParser::setMethod(const HttpPacket::Method &method)
+void HttpParser::setUrl(const QString &url)
 {
-    mCurrentPacket.setMethod(method);
+    mCurrentRequest.setPath(mCurrentRequest.path() + url);
+}
+
+void HttpParser::setMethod(const QString &method)
+{
+    mCurrentRequest.setMethod(method);
 }
 
 void HttpParser::setField(const QString &field)
 {
-    mCurrentField = field;
+    if(mState == None || mState == Value)
+    {
+        headersFlush();
+        mCurrentField = field;
+    }
+    else
+    {
+        mCurrentField += field;
+    }
 }
 
 void HttpParser::setValue(const QString &value)
 {
-    mCurrentPacket.addValue(mCurrentField, value);
+    if(mState == None || mState == Field)
+    {
+        mCurrentValue = value;
+    }
+    else
+    {
+        mCurrentValue += value;
+    }
 }
 
 void HttpParser::setData(const QByteArray &data)
 {
-    mCurrentPacket.setData(data);
+    mCurrentRequest.setData(mCurrentRequest.data() + data);
 }
 
 void HttpParser::setHttpVersion(const int &major, const int &minor)
 {
-    mCurrentPacket.setMajor(major);
-    mCurrentPacket.setMinor(minor);
+    mCurrentRequest.setProtocolVersion(major * 10 + minor);
 }
 
 void HttpParser::messageReady()
 {
+    mCurrentRequest.parseCookies();
+
     QTcpSocket *socket = dynamic_cast<QTcpSocket *>(parent());
 
     if (socket != nullptr)
-        emit httpParsed(socket, mCurrentPacket);
+        emit httpParsed(socket, mCurrentRequest);
 
-    mCurrentPacket = HttpPacket();
-}
-
-HttpPacket HttpParser::currentPacket() const
-{
-    return mCurrentPacket;
-}
-
-void HttpParser::setCurrentPacket(const HttpPacket &currentPacket)
-{
-    mCurrentPacket = currentPacket;
+    mCurrentRequest = HttpRequest();
 }

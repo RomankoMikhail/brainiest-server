@@ -23,6 +23,8 @@ INCLUDEPATH += $$PWD/../3rdparty/http-parser
 SOURCES += \
     $$PWD/../3rdparty/http-parser/http_parser.c \
     cookie.cpp \
+    httprequest.cpp \
+    httpresponse.cpp \
     websocketframe.cpp \
     websocketparser.cpp \
     main.cpp \
@@ -39,6 +41,8 @@ HEADERS += \
     cookie.hpp \
     httppacket.hpp \
     httpparser.hpp \
+    httprequest.h \
+    httpresponse.h \
     webserver.hpp \
     websocketframe.hpp \
     websocketparser.hpp \

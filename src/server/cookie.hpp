@@ -25,13 +25,13 @@ public:
     };
 
     /*!
-     * \brief Формирует массив куки из значения поля заголовка HTTP запроса
+     * \brief Формирует список куки из значения поля заголовка HTTP запроса
      * \param value Значение поля заголовка
      * \return Массив куки
      *
      * \see toField
      */
-    static QVector<Cookie> fromFieldValue(const QString &value);
+    static QList<Cookie> fromFieldValue(const QString &value);
 
     /*!
      * \brief Формирует строку заголовка HTTP ответа

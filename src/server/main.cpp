@@ -68,20 +68,35 @@ WebSocketFrame onEchoServer(SocketContext &context, const WebSocketFrame &frame)
 
 static QString webrootDirectory = "webroot";
 
-HttpPacket onFileSystemAccess(SocketContext &context, const HttpPacket &packet)
+
+void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
 {
     QMimeDatabase mimeDatabase;
-    HttpPacket response;
 
-    QStringList uri = packet.url().split(QRegExp("[?&]"));
-
-    if (uri.size() == 0)
+    for(const auto &cookie : request.cookies())
     {
-        response.setStatusCode(HttpPacket::CodeBadRequest);
-        return response;
+        qDebug() << cookie.name() << cookie.value();
     }
 
-    QString accessUri = uri.at(0);
+    Cookie myCookie;
+    myCookie.setName("test");
+    myCookie.setValue("Hello there");
+    myCookie.setMaxAge(60);
+    //myCookie.setD("/");
+
+    response.addCookie(myCookie);
+
+    if (request.path().size() == 0)
+    {
+        response.setStatusCode(HttpResponse::CodeBadRequest);
+        response.write("<html></head><head><body>");
+        response.write("<h1>Resource not found</h1>");
+        response.write(QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
+        response.write("</body></html>");
+        return;
+    }
+
+    QString accessUri = request.path();
 
     if (accessUri.endsWith('/'))
         accessUri += "index.html";
@@ -90,12 +105,15 @@ HttpPacket onFileSystemAccess(SocketContext &context, const HttpPacket &packet)
 
     if (!isNotRestrictedPath)
     {
-        response.setStatusCode(HttpPacket::CodeForbidden);
+        response.setStatusCode(HttpResponse::CodeForbidden);
+        response.write("<html></head><head><body>");
+        response.write("<h1>Access denied</h1>");
+        response.write(QString("<p>You lack required permissions for resource \"" + request.path() + "\"</p>").toUtf8());
+        response.write("</body></html>");
     }
     else
     {
         QString path = webrootDirectory + accessUri;
-        qDebug() << path;
 
         QFileInfo fileInfo(path);
         if (fileInfo.exists() && fileInfo.isFile())
@@ -106,20 +124,28 @@ HttpPacket onFileSystemAccess(SocketContext &context, const HttpPacket &packet)
 
             if (file.isOpen())
             {
-                response.setStatusCode(HttpPacket::CodeOk);
-                qDebug() << path << mimeDatabase.mimeTypeForFile(path);
-                response.setData(file.readAll(), mimeDatabase.mimeTypeForFile(path));
+                response.setStatusCode(HttpResponse::CodeOk);
+                response.setData(file.readAll());
+                response.addHeader("content-type", mimeDatabase.mimeTypeForFile(path).name());
             }
             else
-                response.setStatusCode(HttpPacket::CodeNotFound);
+            {
+                response.setStatusCode(HttpResponse::CodeNotFound);
+                response.write("<html></head><head><body>");
+                response.write("<h1>Resource not found</h1>");
+                response.write(QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
+                response.write("</body></html>");
+            }
         }
         else
         {
-            response.setStatusCode(HttpPacket::CodeNotFound);
+            response.setStatusCode(HttpResponse::CodeNotFound);
+            response.write("<html></head><head><body>");
+            response.write("<h1>Resource not found</h1>");
+            response.write(QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
+            response.write("</body></html>");
         }
     }
-
-    return response;
 }
 
 int main(int argc, char *argv[])
@@ -129,6 +155,8 @@ int main(int argc, char *argv[])
     QString databaseName = "storage.db3";
     QString address = "127.0.0.1";
     int port        = 8080;
+    qint64 maxClient = 50;
+    qint64 connectionTimeout = 5;
 
     QCoreApplication a(argc, argv);
 
@@ -140,10 +168,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    //configuration.
+
     port = configuration.value("port", 8080).toInt();
     address = configuration.value("listen", "127.0.0.1").toString();
     webrootDirectory = configuration.value("webroot", "webroot").toString();
     databaseName = configuration.value("database", "storage.db3").toString();
+    maxClient = configuration.value("clients", 50).toInt();
+    connectionTimeout = configuration.value("timeout", 5).toInt();
 
 
     QSqlError error = Singleton::database().init(databaseName);
@@ -153,7 +185,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    WebServer server;
+    WebServer server(maxClient, connectionTimeout);
 
     server.registerHttpRoute("^\\/((?!api)).*$", onFileSystemAccess);
     server.registerWebSocketRoute("/api/echo", onEchoServer);

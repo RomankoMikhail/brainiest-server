@@ -4,10 +4,14 @@
 #include "httppacket.hpp"
 #include "websocketframe.hpp"
 #include <QTcpSocket>
+#include <QTimer>
+#include "httprequest.h"
+#include "httpresponse.h"
 
 struct SocketContext
 {
     QTcpSocket *socket;
+    QTimer *timeoutTimer;
 
     bool operator==(const SocketContext &other)
     {
@@ -16,7 +20,7 @@ struct SocketContext
 };
 Q_DECLARE_METATYPE(SocketContext);
 
-using onHttpPacketFunction     = HttpPacket (*)(SocketContext &, const HttpPacket &);
+using onHttpPacketFunction     = void (*)(const HttpRequest &, HttpResponse &);
 using onWebsocketFrameFunction = WebSocketFrame (*)(SocketContext &, const WebSocketFrame &);
 
 Q_DECLARE_METATYPE(onHttpPacketFunction);
