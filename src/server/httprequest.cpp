@@ -45,14 +45,6 @@ void HttpRequest::parseGetArguments()
     }
 }
 
-void HttpRequest::parseCookies()
-{
-    for (const auto &cookie : mHeaders.values("cookie"))
-    {
-        mCookies.append(Cookie::fromFieldValue(cookie));
-    }
-}
-
 QString HttpRequest::method() const
 {
     return mMethod;
@@ -96,9 +88,4 @@ void HttpRequest::setData(const QByteArray &data)
 QMap<QString, QString> HttpRequest::arguments() const
 {
     return mArguments;
-}
-
-QList<Cookie> HttpRequest::cookies() const
-{
-    return mCookies;
 }

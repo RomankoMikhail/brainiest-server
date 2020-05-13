@@ -68,8 +68,8 @@ private:
     QVector<SocketContext> mContexts;
 
     QTcpServer mTcpServer;
-    qint64 mMaxClients       = 50;
-    qint64 mKeepAliveTimeout = 5000;
+    qint64 mMaximumPendingConnections       = 50;
+    qint64 mKeepAliveTime = 5000;
     qint64 mMaxRequestSize   = 10485760; // 10 Mb
 };
 

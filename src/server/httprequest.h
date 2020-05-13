@@ -1,7 +1,6 @@
 #ifndef HTTPREQUEST_H
 #define HTTPREQUEST_H
 
-#include "cookie.hpp"
 #include <QBuffer>
 #include <QHostAddress>
 #include <QTcpSocket>
@@ -18,7 +17,6 @@ public:
     void setPath(const QString &path);
 
     void parseGetArguments();
-    void parseCookies();
 
     QString method() const;
     void setMethod(const QString &method);
@@ -34,15 +32,12 @@ public:
 
     QMap<QString, QString> arguments() const;
 
-    QList<Cookie> cookies() const;
-
 private:
     QHostAddress mHostAddress;
     QString mPath;
     QString mMethod;
     int mProtocolVersion = 11;
 
-    QList<Cookie> mCookies;
     QMap<QString, QString> mArguments;
     QMultiMap<QString, QString> mHeaders;
     QByteArray mData;

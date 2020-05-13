@@ -24,11 +24,6 @@ void HttpResponse::flush(QTcpSocket *socket)
         }
     }
 
-    for (const auto &cookie : mCookies)
-    {
-        socket->write(cookie.toField().toUtf8());
-    }
-
     socket->write("\r\n");
 
     socket->write(mData);
@@ -74,19 +69,4 @@ void HttpResponse::setData(const QByteArray &data, const QString &mimeType)
     setData(data);
     mHeaders.remove("content-type");
     addHeader("content-type", mimeType);
-}
-
-QList<Cookie> HttpResponse::cookies() const
-{
-    return mCookies;
-}
-
-void HttpResponse::setCookies(const QList<Cookie> &cookies)
-{
-    mCookies = cookies;
-}
-
-void HttpResponse::addCookie(const Cookie &cookie)
-{
-    mCookies.append(cookie);
 }

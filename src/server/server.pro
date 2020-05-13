@@ -28,7 +28,6 @@ SOURCES += \
     api/apigame.cpp \
     api/apiquestion.cpp \
     api/apiuser.cpp \
-    cookie.cpp \
     httprequest.cpp \
     httpresponse.cpp \
     models/answer.cpp \

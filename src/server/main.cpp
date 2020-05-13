@@ -1,4 +1,3 @@
-#include "actions.hpp"
 #include "singleton.hpp"
 #include "webserver.hpp"
 #include <QCoreApplication>

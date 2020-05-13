@@ -170,8 +170,6 @@ void HttpParser::setHttpVersion(const int &major, const int &minor)
 
 void HttpParser::messageReady()
 {
-    mCurrentRequest.parseCookies();
-
     auto socket = dynamic_cast<QTcpSocket *>(parent());
 
     if (socket != nullptr)

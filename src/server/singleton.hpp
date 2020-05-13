@@ -1,7 +1,6 @@
 #ifndef SINGLETONDATABASE_HPP
 #define SINGLETONDATABASE_HPP
 
-#include "action.hpp"
 #include "database.hpp"
 
 class Singleton
@@ -14,12 +13,6 @@ public:
     {
         static Database database;
         return database;
-    }
-
-    static Action &action()
-    {
-        static Action action;
-        return action;
     }
 
     static QMap<QString, int> &tokens()

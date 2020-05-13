@@ -1,7 +1,6 @@
 #ifndef HTTPRESPONSE_H
 #define HTTPRESPONSE_H
 
-#include "cookie.hpp"
 #include <QBuffer>
 #include <QTcpSocket>
 
@@ -41,17 +40,12 @@ public:
     void setData(const QByteArray &data);
     void setData(const QByteArray &data, const QString &mimeType);
 
-    QList<Cookie> cookies() const;
-    void setCookies(const QList<Cookie> &cookies);
-    void addCookie(const Cookie &cookie);
-
     friend class ApiController;
 
 private:
     QMultiMap<QString, QString> mHeaders;
     QByteArray mData;
     Code mStatusCode;
-    QList<Cookie> mCookies;
 };
 
 #endif // HTTPRESPONSE_H

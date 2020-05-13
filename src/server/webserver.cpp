@@ -18,7 +18,6 @@ WebServer::WebServer(int maximumPendingConnections,
     const int milisecondsInSecond = 1000;
 
     mMaximumPendingConnections = maximumPendingConnections;
-
     mKeepAliveTime = keepAliveTime * milisecondsInSecond;
 }
 
