@@ -1,9 +1,9 @@
 #ifndef HTTPRESPONSE_H
 #define HTTPRESPONSE_H
 
-#include <QTcpSocket>
-#include <QBuffer>
 #include "cookie.hpp"
+#include <QBuffer>
+#include <QTcpSocket>
 
 class HttpResponse
 {
@@ -26,24 +26,26 @@ public:
         CodeVersionNotSupported = 505  //!<
     };
 
-
     void write(const QByteArray &array);
     void flush(QTcpSocket *socket);
 
-    HttpResponse();
+    HttpResponse() = default;
     Code statusCode() const;
     void setStatusCode(Code statusCode);
 
     QMultiMap<QString, QString> headers() const;
     void setHeaders(const QMultiMap<QString, QString> &headers);
-    void addHeader(const QString header, const QString value);
+    void addHeader(const QString &header, const QString &value);
 
     QByteArray data() const;
     void setData(const QByteArray &data);
+    void setData(const QByteArray &data, const QString &mimeType);
 
     QList<Cookie> cookies() const;
     void setCookies(const QList<Cookie> &cookies);
     void addCookie(const Cookie &cookie);
+
+    friend class ApiController;
 
 private:
     QMultiMap<QString, QString> mHeaders;

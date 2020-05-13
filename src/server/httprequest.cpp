@@ -1,11 +1,8 @@
 #include "httprequest.h"
 #include <QBuffer>
-#include <QRegularExpression>
 #include <QDebug>
-
-HttpRequest::HttpRequest()
-{
-}
+#include <QRegularExpression>
+#include <QUrl>
 
 QHostAddress HttpRequest::hostAddress() const
 {
@@ -32,25 +29,25 @@ void HttpRequest::parseGetArguments()
 {
     QStringList splitedUrl = mPath.split(QRegExp("[?&]"));
 
-    if(splitedUrl.size() == 0)
+    if (splitedUrl.size() == 0)
         return;
 
-    mPath = splitedUrl[0];
+    mPath = QUrl::fromPercentEncoding(splitedUrl[0].toUtf8());
 
-    for(auto arg = splitedUrl.begin() + 1; arg != splitedUrl.end(); ++arg)
+    for (auto arg = splitedUrl.begin() + 1; arg != splitedUrl.end(); ++arg)
     {
         QStringList pair = arg->split("=");
 
-        if(pair.size() >= 2)
-            mArguments[pair[0]] = pair[1];
-        else if(pair.size() >= 1)
-            mArguments[pair[0]] = true;
+        if (pair.size() >= 2)
+            mArguments[QUrl::fromPercentEncoding(pair[0].toUtf8())] = QUrl::fromPercentEncoding(pair[1].toUtf8());
+        else if (pair.size() >= 1)
+            mArguments[QUrl::fromPercentEncoding(pair[0].toUtf8())] = true;
     }
 }
 
 void HttpRequest::parseCookies()
 {
-    for(const auto &cookie : mHeaders.values("cookie"))
+    for (const auto &cookie : mHeaders.values("cookie"))
     {
         mCookies.append(Cookie::fromFieldValue(cookie));
     }
@@ -81,7 +78,7 @@ QMultiMap<QString, QString> HttpRequest::headers() const
     return mHeaders;
 }
 
-void HttpRequest::addHeader(const QString header, const QString value)
+void HttpRequest::addHeader(const QString &header, const QString &value)
 {
     mHeaders.insert(header.toLower(), value.trimmed());
 }

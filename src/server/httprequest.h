@@ -1,15 +1,15 @@
 #ifndef HTTPREQUEST_H
 #define HTTPREQUEST_H
 
-#include <QTcpSocket>
-#include <QHostAddress>
-#include <QBuffer>
 #include "cookie.hpp"
+#include <QBuffer>
+#include <QHostAddress>
+#include <QTcpSocket>
 
 class HttpRequest
 {
 public:
-    HttpRequest();
+    HttpRequest() = default;
 
     QHostAddress hostAddress() const;
     void setHostAddress(const QHostAddress &hostAddress);
@@ -27,7 +27,7 @@ public:
     void setProtocolVersion(int protocolVersion);
 
     QMultiMap<QString, QString> headers() const;
-    void addHeader(const QString header, const QString value);
+    void addHeader(const QString &header, const QString &value);
 
     QByteArray data() const;
     void setData(const QByteArray &data);
@@ -40,7 +40,7 @@ private:
     QHostAddress mHostAddress;
     QString mPath;
     QString mMethod;
-    int mProtocolVersion;
+    int mProtocolVersion = 11;
 
     QList<Cookie> mCookies;
     QMap<QString, QString> mArguments;

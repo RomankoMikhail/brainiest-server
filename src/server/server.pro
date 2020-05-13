@@ -22,36 +22,53 @@ INCLUDEPATH += $$PWD/../3rdparty/http-parser
 
 SOURCES += \
     $$PWD/../3rdparty/http-parser/http_parser.c \
+    api.cpp \
+    api/apianswer.cpp \
+    api/apiciphers.cpp \
+    api/apigame.cpp \
+    api/apiquestion.cpp \
+    api/apiuser.cpp \
     cookie.cpp \
     httprequest.cpp \
     httpresponse.cpp \
+    models/answer.cpp \
+    models/ciphers.cpp \
+    models/game.cpp \
+    models/question.cpp \
+    models/questionhasanswer.cpp \
+    models/user.cpp \
+    token.cpp \
     websocketframe.cpp \
     websocketparser.cpp \
     main.cpp \
     webserver.cpp \
     httpparser.cpp \
-    httppacket.cpp \
-    database.cpp \
-    user.cpp \
-    action.cpp \
-    actions.cpp
+    database.cpp
 
 HEADERS += \
     $$PWD/../3rdparty/http-parser/http_parser.h \
-    cookie.hpp \
-    httppacket.hpp \
+    api.h \
+    api/apianswer.h \
+    api/apiciphers.h \
+    api/apigame.h \
+    api/apiquestion.h \
+    api/apiuser.h \
     httpparser.hpp \
     httprequest.h \
     httpresponse.h \
+    models/answer.h \
+    models/ciphers.h \
+    models/game.h \
+    models/question.h \
+    models/questionhasanswer.h \
+    models/user.h \
+    token.h \
     webserver.hpp \
     websocketframe.hpp \
     websocketparser.hpp \
     socketcontext.hpp \
     database.hpp \
-    singleton.hpp \
-    user.hpp \
-    action.hpp \
-    actions.hpp
+    singleton.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

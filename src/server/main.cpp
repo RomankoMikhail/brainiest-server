@@ -1,6 +1,5 @@
 #include "actions.hpp"
 #include "singleton.hpp"
-#include "user.hpp"
 #include "webserver.hpp"
 #include <QCoreApplication>
 #include <QCryptographicHash>
@@ -13,7 +12,8 @@
 
 bool isPathInDirectory(const QString &filePath, const QString &directoryPath)
 {
-    QString absouluteFilePath, absouluteDirectoryPath;
+    QString absouluteFilePath;
+    QString absouluteDirectoryPath;
 
     absouluteFilePath      = QFileInfo(filePath).absolutePath();
     absouluteDirectoryPath = QDir(directoryPath).absolutePath();
@@ -36,62 +36,27 @@ bool isPathInDirectory(const QString &filePath, const QString &directoryPath)
     return true;
 }
 
-WebSocketFrame onActionServer(SocketContext &context, const WebSocketFrame &frame)
-{
-    QJsonDocument requestDocument, responseDocument;
+#include "api/apianswer.h"
+#include "api/apiciphers.h"
+#include "api/apiquestion.h"
+#include "api/apiuser.h"
 
-    requestDocument = QJsonDocument::fromJson(frame.data());
-
-    if (!requestDocument.isObject() || !requestDocument.object().contains("cmd"))
-    {
-        responseDocument.setObject(Action::formResponseFromCode(Action::ReturnCodeError));
-    }
-    else
-    {
-        auto response = Singleton::action().exec(requestDocument.object()["cmd"].toString(),
-                                                 requestDocument.object());
-
-        responseDocument.setObject(response);
-    }
-
-    WebSocketFrame responseFrame;
-    responseFrame.setOpcode(WebSocketFrame::OpcodeText);
-    responseFrame.setData(responseDocument.toJson());
-    responseFrame.setIsFinalFrame(true);
-    return responseFrame;
-}
-
-WebSocketFrame onEchoServer(SocketContext &context, const WebSocketFrame &frame)
+WebSocketFrame onEchoServer(SocketContext & /*context*/, const WebSocketFrame &frame)
 {
     return frame;
 }
 
 static QString webrootDirectory = "webroot";
 
-
 void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
 {
-    QMimeDatabase mimeDatabase;
-
-    for(const auto &cookie : request.cookies())
-    {
-        qDebug() << cookie.name() << cookie.value();
-    }
-
-    Cookie myCookie;
-    myCookie.setName("test");
-    myCookie.setValue("Hello there");
-    myCookie.setMaxAge(60);
-    //myCookie.setD("/");
-
-    response.addCookie(myCookie);
-
     if (request.path().size() == 0)
     {
         response.setStatusCode(HttpResponse::CodeBadRequest);
         response.write("<html></head><head><body>");
         response.write("<h1>Resource not found</h1>");
-        response.write(QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
+        response.write(
+            QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
         response.write("</body></html>");
         return;
     }
@@ -108,7 +73,9 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
         response.setStatusCode(HttpResponse::CodeForbidden);
         response.write("<html></head><head><body>");
         response.write("<h1>Access denied</h1>");
-        response.write(QString("<p>You lack required permissions for resource \"" + request.path() + "\"</p>").toUtf8());
+        response.write(
+            QString("<p>You lack required permissions for resource \"" + request.path() + "\"</p>")
+                .toUtf8());
         response.write("</body></html>");
     }
     else
@@ -126,14 +93,17 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
             {
                 response.setStatusCode(HttpResponse::CodeOk);
                 response.setData(file.readAll());
-                response.addHeader("content-type", mimeDatabase.mimeTypeForFile(path).name());
+                response.addHeader("content-type",
+                                   Singleton::mimeDatabase().mimeTypeForFile(path).name());
             }
             else
             {
                 response.setStatusCode(HttpResponse::CodeNotFound);
                 response.write("<html></head><head><body>");
                 response.write("<h1>Resource not found</h1>");
-                response.write(QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
+                response.write(
+                    QString("<p>Requested resource \"" + request.path() + "\" not found</p>")
+                        .toUtf8());
                 response.write("</body></html>");
             }
         }
@@ -142,41 +112,41 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
             response.setStatusCode(HttpResponse::CodeNotFound);
             response.write("<html></head><head><body>");
             response.write("<h1>Resource not found</h1>");
-            response.write(QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
+            response.write(
+                QString("<p>Requested resource \"" + request.path() + "\" not found</p>").toUtf8());
             response.write("</body></html>");
         }
     }
 }
 
+
+
 int main(int argc, char *argv[])
 {
-    QMimeDatabase mimeDatabase;
+    //controller.add("/api/user/login", new ApiUserLogin);
 
-    QString databaseName = "storage.db3";
-    QString address = "127.0.0.1";
-    int port        = 8080;
-    qint64 maxClient = 50;
-    qint64 connectionTimeout = 5;
+    const quint16 defaultServerPort = 8080;
+    const int defaultClients        = 50;
+    const int defaultTimeout        = 5;
 
-    QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
 
     QSettings configuration("config.ini", QSettings::IniFormat);
 
-    if(configuration.status() != QSettings::NoError)
+    if (configuration.status() != QSettings::NoError)
     {
         qCritical() << "Can't read settings from config.ini";
         return -1;
     }
 
-    //configuration.
+    // configuration.
 
-    port = configuration.value("port", 8080).toInt();
-    address = configuration.value("listen", "127.0.0.1").toString();
-    webrootDirectory = configuration.value("webroot", "webroot").toString();
-    databaseName = configuration.value("database", "storage.db3").toString();
-    maxClient = configuration.value("clients", 50).toInt();
-    connectionTimeout = configuration.value("timeout", 5).toInt();
-
+    quint16 port          = configuration.value("port", defaultServerPort).toInt();
+    QString address       = configuration.value("listen", "127.0.0.1").toString();
+    webrootDirectory      = configuration.value("webroot", "webroot").toString();
+    QString databaseName  = configuration.value("database", "storage.db3").toString();
+    int maxClient         = configuration.value("clients", defaultClients).toInt();
+    int connectionTimeout = configuration.value("timeout", defaultTimeout).toInt();
 
     QSqlError error = Singleton::database().init(databaseName);
     if (error.isValid())
@@ -188,11 +158,36 @@ int main(int argc, char *argv[])
     WebServer server(maxClient, connectionTimeout);
 
     server.registerHttpRoute("^\\/((?!api)).*$", onFileSystemAccess);
-    server.registerWebSocketRoute("/api/echo", onEchoServer);
-    server.registerWebSocketRoute("/api/action", onActionServer);
-    server.registerWebSocketRoute("/", onActionServer);
 
-    registerActions();
+    server.registerHttpRoute("/api/user/login", onUserLogin);
+    server.registerHttpRoute("/api/user/register", onUserRegister);
+    server.registerHttpRoute("/api/user/list", onUserList);
+    server.registerHttpRoute("/api/user/info", onUserInfo);
+    server.registerHttpRoute("/api/user/update", onUserUpdate);
+    server.registerHttpRoute("/api/user/changePassword", onUserChangePassword);
+
+    server.registerHttpRoute("/api/question/info", onQuestionInfo);
+    server.registerHttpRoute("/api/question/update", onQuestionUpdate);
+    server.registerHttpRoute("/api/question/add", onQuestionAdd);
+    server.registerHttpRoute("/api/question/list", onQuestionList);
+    server.registerHttpRoute("/api/question/listAnswers", onQuestionListAnswers);
+    server.registerHttpRoute("/api/question/addAnswer", onQuestionAddAnswer);
+    server.registerHttpRoute("/api/question/removeAnswer", onQuestionRemoveAnswer);
+    server.registerHttpRoute("/api/question/updateAnswer", onQuestionUpdateAnswer);
+    server.registerHttpRoute("/api/question/themes", onQuestionThemes);
+
+    server.registerHttpRoute("/api/ciphers/info", onCiphersInfo);
+    server.registerHttpRoute("/api/ciphers/update", onCiphersUpdate);
+    server.registerHttpRoute("/api/ciphers/add", onCiphersAdd);
+    server.registerHttpRoute("/api/ciphers/list", onCiphersList);
+
+    server.registerHttpRoute("/api/answer/info", onAnswerInfo);
+    server.registerHttpRoute("/api/answer/update", onAnswerUpdate);
+    server.registerHttpRoute("/api/answer/add", onAnswerAdd);
+    server.registerHttpRoute("/api/answer/list", onAnswerList);
+    server.registerHttpRoute("/api/answer/listQuestions", onAnswerListQuestions);
+
+    server.registerWebSocketRoute("/api/echo", onEchoServer);
 
     if (server.listen(QHostAddress(address), port))
     {
@@ -203,5 +198,5 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    return a.exec();
+    return QCoreApplication::exec();
 }

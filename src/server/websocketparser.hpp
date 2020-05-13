@@ -29,8 +29,8 @@ signals:
 private:
     WebSocketFrame mCurrentFrame;
 
-    quint64 mPayloadSize;
-    quint8 mMask[4];
+    quint64 mPayloadSize = 0;
+    std::array<quint8, 4> mMask;
 
     State readHeader(QIODevice *device);
     State readPayloadSize16Bit(QIODevice *device);

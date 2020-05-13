@@ -2,9 +2,6 @@
 #include <QDataStream>
 #include <QRandomGenerator>
 
-WebSocketFrame::WebSocketFrame()
-{
-}
 
 QByteArray WebSocketFrame::toByteArray(bool useMask)
 {
@@ -12,30 +9,30 @@ QByteArray WebSocketFrame::toByteArray(bool useMask)
     QDataStream dataStream(&array, QIODevice::WriteOnly);
     dataStream.setByteOrder(QDataStream::BigEndian);
 
-    quint8 header[2] = {0, 0};
+    std::array<quint8, 2> header;
 
-    header[0] = static_cast<char>(isFinalFrame()) << 7 | (static_cast<char>(opcode()) & 0x0F);
+    header.at(0) = static_cast<char>(isFinalFrame()) << 7 | (static_cast<char>(opcode()) & 0x0F);
 
     if (useMask)
-        header[1] = 1 << 7;
+        header.at(1) = 1 << 7;
 
-    dataStream << header[0];
+    dataStream << header.at(0);
 
     if (mData.size() <= 125)
     {
-        header[1] |= mData.size() & 0x7F;
-        dataStream << header[1];
+        header.at(1) |= mData.size() & 0x7F;
+        dataStream << header.at(1);
     }
     else if (mData.size() <= 65535)
     {
-        header[1] |= 126;
-        dataStream << header[1];
+        header.at(1) |= 126;
+        dataStream << header.at(1);
         dataStream << static_cast<quint16>(mData.size());
     }
     else
     {
-        header[1] |= 127;
-        dataStream << header[1];
+        header.at(1) |= 127;
+        dataStream << header.at(1);
         dataStream << static_cast<quint64>(mData.size());
     }
 
@@ -48,7 +45,7 @@ QByteArray WebSocketFrame::toByteArray(bool useMask)
     }
 
     int maskPosition = 0;
-    quint8 *byteMask = reinterpret_cast<quint8 *>(&mask);
+    auto byteMask = reinterpret_cast<quint8 *>(&mask);
 
     for (const auto &byte : mData)
     {

@@ -1,9 +1,8 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
-#include "httppacket.hpp"
-#include "httprequest.h"
 #include "httpparser.hpp"
+#include "httprequest.h"
 #include "socketcontext.hpp"
 #include "websocketframe.hpp"
 #include "websocketparser.hpp"
@@ -15,8 +14,19 @@ class WebServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit WebServer(qint64 maxClients = 50, qint64 keepAliveTime = 5, QObject *parent = nullptr);
-    ~WebServer();
+
+    WebServer() = delete;
+    WebServer(const WebServer &other) = delete;
+    WebServer& operator=(const WebServer &other) = delete;
+    WebServer& operator=(WebServer &other) = delete;
+
+
+    WebServer(int maximumPendingConnections = 50,
+              int keepAliveTime = 5,
+              QObject *parent = nullptr);
+
+
+    ~WebServer() override;
 
     bool listen(const QHostAddress &address, const quint16 &port = 8080);
     void closeConnections();
@@ -27,7 +37,12 @@ public:
     void registerHttpRoute(const QString &pattern, onHttpPacketFunction callback);
     void registerWebSocketRoute(const QString &pattern, onWebsocketFrameFunction callback);
 
+
+
 private slots:
+
+    void sendAllWebSockets(WebSocketFrame &frame);
+
     void onNewConnection();
     void onDisconnect();
     void onReadyRead();
@@ -53,9 +68,9 @@ private:
     QVector<SocketContext> mContexts;
 
     QTcpServer mTcpServer;
-    qint64 mMaxClients = 50;
+    qint64 mMaxClients       = 50;
     qint64 mKeepAliveTimeout = 5000;
-    qint64 mMaxRequestSize = 10485760; // 10 Mb
+    qint64 mMaxRequestSize   = 10485760; // 10 Mb
 };
 
 #endif // HTTPSERVER_H

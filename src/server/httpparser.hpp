@@ -1,8 +1,8 @@
 #ifndef HTTPPARSER_H
 #define HTTPPARSER_H
 
-#include "httprequest.h"
 #include "http_parser.h"
+#include "httprequest.h"
 #include <QIODevice>
 #include <QObject>
 #include <QTcpSocket>
@@ -11,10 +11,8 @@ class HttpParser : public QObject
 {
     Q_OBJECT
 public:
-
-
     explicit HttpParser(QObject *parent = nullptr);
-    ~HttpParser();
+    ~HttpParser() override;
 
     void parse(QIODevice *device, const qint64 &peekSize);
     void headersFlush();
@@ -35,14 +33,13 @@ private:
         None,
         Value,
         Field
-    } mState;
-
+    } mState = None;
 
     QString mCurrentField;
     QString mCurrentValue;
     HttpRequest mCurrentRequest;
 
-    http_parser_settings mSettings;
+    http_parser_settings mSettings = {};
     http_parser *mParser = nullptr;
 };
 Q_DECLARE_METATYPE(HttpParser *)

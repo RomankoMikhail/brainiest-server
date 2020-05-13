@@ -16,7 +16,7 @@ public:
         OpcodePong         = 0x0A
     };
 
-    WebSocketFrame();
+    WebSocketFrame() = default;
 
     QByteArray toByteArray(bool useMask = false);
 
@@ -30,8 +30,8 @@ public:
     void setOpcode(const WebSocketOpcode &opcode);
 
 private:
-    WebSocketOpcode mOpcode;
-    bool mIsFinalFrame;
+    WebSocketOpcode mOpcode = OpcodeContinuation;
+    bool mIsFinalFrame = false;
     QByteArray mData;
 };
 

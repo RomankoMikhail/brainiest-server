@@ -1,5 +1,5 @@
-#ifndef USER_HPP
-#define USER_HPP
+#ifndef USER_H
+#define USER_H
 
 #include <QString>
 
@@ -7,7 +7,7 @@ class User
 {
 public:
     static User create(const QString &name, const QString &surname, const QString &patronymic,
-                       const QString &username, const QString &password);
+                       const QString &username, const QString &password, const int &isAdmin = 0);
 
     static User getById(const int &id);
     static User getByUsername(const QString &username);
@@ -15,8 +15,6 @@ public:
     static QList<int> getIds();
 
     User() = default;
-    int id() const;
-
     QString name() const;
     void setName(const QString &name);
 
@@ -31,6 +29,13 @@ public:
     QString password() const;
     void setPassword(const QString &password);
 
+    int isAdministrator() const;
+    void setIsAdministrator(int isAdministrator);
+
+    bool update();
+
+    int id() const;
+
     bool isValid() const;
 
 private:
@@ -41,6 +46,7 @@ private:
     QString mPatronymic;
     QString mUsername;
     QString mPassword;
+    int mIsAdministrator = 0;
 };
 
-#endif // USER_HPP
+#endif // USER_H

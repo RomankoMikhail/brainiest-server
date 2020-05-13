@@ -52,7 +52,8 @@ WebSocketParser::State WebSocketParser::readHeader(QIODevice *device)
     mCurrentFrame.setIsFinalFrame((header[0] & 0x80) != 0);
 
     mCurrentFrame.setOpcode(static_cast<WebSocketFrame::WebSocketOpcode>(header[0] & 0x0F));
-    mMask[0] = mMask[1] = mMask[2] = mMask[3] = (header[1] & 0x80) != 0;
+
+    mMask.at(0) = mMask.at(1) = mMask.at(2) = mMask.at(3) = (header[1] & 0x80) != 0;
     mPayloadSize                              = (header[1] & 0x7F);
 
     if (mPayloadSize == 126)
@@ -92,13 +93,13 @@ WebSocketParser::State WebSocketParser::readPayloadSize64Bit(QIODevice *device)
 
 WebSocketParser::State WebSocketParser::readMask(QIODevice *device)
 {
-    if (mMask[0] == 0)
+    if (mMask.at(0) == 0)
         return StateReadPayload;
 
     if (device->bytesAvailable() < 4)
         return StateReadMask;
 
-    device->read(reinterpret_cast<char *>(mMask), 4);
+    device->read(reinterpret_cast<char *>(mMask.data()), 4);
 
     return StateReadPayload;
 }
@@ -118,14 +119,14 @@ WebSocketParser::State WebSocketParser::readPayload(QIODevice *device)
         char byte;
         device->read(&byte, 1);
 
-        data.append(byte ^ mMask[maskPosition]);
+        data.append(byte ^ mMask.at(maskPosition));
 
         maskPosition = (maskPosition + 1) & 0x3;
     }
 
     mCurrentFrame.setData(data);
 
-    QTcpSocket *socket = dynamic_cast<QTcpSocket *>(parent());
+    auto socket = dynamic_cast<QTcpSocket *>(parent());
 
     if (socket != nullptr)
         emit frameReady(socket, mCurrentFrame);

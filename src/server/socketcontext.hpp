@@ -1,12 +1,11 @@
 #ifndef SOCKETCONTEXT_HPP
 #define SOCKETCONTEXT_HPP
 
-#include "httppacket.hpp"
+#include "httprequest.h"
+#include "httpresponse.h"
 #include "websocketframe.hpp"
 #include <QTcpSocket>
 #include <QTimer>
-#include "httprequest.h"
-#include "httpresponse.h"
 
 struct SocketContext
 {

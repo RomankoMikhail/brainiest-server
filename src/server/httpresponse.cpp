@@ -1,11 +1,6 @@
 #include "httpresponse.h"
-#include <QString>
 #include <QByteArray>
-
-HttpResponse::HttpResponse()
-{
-
-}
+#include <QString>
 
 void HttpResponse::write(const QByteArray &array)
 {
@@ -18,15 +13,18 @@ void HttpResponse::flush(QTcpSocket *socket)
 
     addHeader("content-length", QString::number(mData.size()));
 
-    for(const auto &header : mHeaders.keys())
+    for (const auto &header : mHeaders.keys())
     {
-        for(const auto &value : mHeaders.values(header))
+        for (const auto &value : mHeaders.values(header))
         {
-            socket->write(QString(header + ": " + value + "\r\n").toUtf8());
+            socket->write(header.toUtf8());
+            socket->write(": ");
+            socket->write(value.toUtf8());
+            socket->write("\r\n");
         }
     }
 
-    for(const auto &cookie : mCookies)
+    for (const auto &cookie : mCookies)
     {
         socket->write(cookie.toField().toUtf8());
     }
@@ -56,7 +54,7 @@ void HttpResponse::setHeaders(const QMultiMap<QString, QString> &headers)
     mHeaders = headers;
 }
 
-void HttpResponse::addHeader(const QString header, const QString value)
+void HttpResponse::addHeader(const QString &header, const QString &value)
 {
     mHeaders.insert(header.toLower(), value.trimmed());
 }
@@ -69,6 +67,13 @@ QByteArray HttpResponse::data() const
 void HttpResponse::setData(const QByteArray &data)
 {
     mData = data;
+}
+
+void HttpResponse::setData(const QByteArray &data, const QString &mimeType)
+{
+    setData(data);
+    mHeaders.remove("content-type");
+    addHeader("content-type", mimeType);
 }
 
 QList<Cookie> HttpResponse::cookies() const

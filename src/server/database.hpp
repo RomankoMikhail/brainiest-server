@@ -13,7 +13,6 @@ public:
     QSqlError init(const QString &filename = "");
 
     QSqlDatabase database() const;
-
 private:
     QSqlDatabase mDatabase;
 };
