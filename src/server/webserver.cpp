@@ -237,9 +237,7 @@ void WebServer::onHttpPacketParsed(QTcpSocket *socket,
     response.addHeader("Access-Control-Allow-Origin", "*");
     response.addHeader("Access-Control-Allow-Methods",
                        "POST, GET, OPTIONS, DELETE, PUT");
-    response.addHeader(
-        "Access-Control-Allow-Headers",
-        "append,delete,entries,foreach,get,has,keys,set,values,Authorization");
+    response.addHeader("Access-Control-Allow-Headers", "*");
 
     bool connectionKeepAlive = true;
 
