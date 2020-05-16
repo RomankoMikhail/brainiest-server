@@ -11,7 +11,7 @@ void HttpResponse::flush(QTcpSocket *socket)
 {
     socket->write(QString("HTTP/1.1 " + QString::number(statusCode()) + "\r\n").toUtf8());
 
-    addHeader("content-length", QString::number(mData.size()));
+    addHeader("Content-Length", QString::number(mData.size()));
 
     for (const auto &header : mHeaders.keys())
     {
@@ -51,7 +51,7 @@ void HttpResponse::setHeaders(const QMultiMap<QString, QString> &headers)
 
 void HttpResponse::addHeader(const QString &header, const QString &value)
 {
-    mHeaders.insert(header.toLower(), value.trimmed());
+    mHeaders.insert(header, value.trimmed());
 }
 
 QByteArray HttpResponse::data() const
@@ -67,6 +67,6 @@ void HttpResponse::setData(const QByteArray &data)
 void HttpResponse::setData(const QByteArray &data, const QString &mimeType)
 {
     setData(data);
-    mHeaders.remove("content-type");
-    addHeader("content-type", mimeType);
+    mHeaders.remove("Content-Type");
+    addHeader("Content-Type", mimeType);
 }
