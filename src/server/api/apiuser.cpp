@@ -1,8 +1,8 @@
+#include "apiuser.h"
+#include "../api.h"
 #include "../models/user.h"
 #include "../singleton.hpp"
-#include "../api.h"
 #include "token.h"
-#include "apiuser.h"
 
 #include <QJsonArray>
 
@@ -36,6 +36,15 @@ void onUserInfo(const HttpRequest &request, HttpResponse &response)
 
 void onUserRegister(const HttpRequest &request, HttpResponse &response)
 {
+    if (!request.arguments().contains("username") ||
+        !request.arguments().contains("password") ||
+        !request.arguments().contains("name") ||
+        !request.arguments().contains("surname"))
+    {
+        response.setData(formError(MissingParameter), "application/json");
+        return;
+    }
+
     QString username   = request.arguments().value("username");
     QString password   = request.arguments().value("password");
     QString name       = request.arguments().value("name");
@@ -46,7 +55,7 @@ void onUserRegister(const HttpRequest &request, HttpResponse &response)
 
     if (!newUser.isValid())
     {
-        response.setData(formError(GeneralError), "application/json");
+        response.setData(formError(RegistrationFailed), "application/json");
         return;
     }
 
@@ -55,7 +64,8 @@ void onUserRegister(const HttpRequest &request, HttpResponse &response)
 
 void onUserUpdate(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("name") || !request.arguments().contains("surname"))
+    if (!request.arguments().contains("name") ||
+        !request.arguments().contains("surname"))
     {
         response.setData(formError(MissingParameter), "application/json");
         return;
@@ -103,7 +113,8 @@ void onUserUpdate(const HttpRequest &request, HttpResponse &response)
 
 void onUserChangePassword(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("password") || !request.arguments().contains("newPassword"))
+    if (!request.arguments().contains("password") ||
+        !request.arguments().contains("newPassword"))
     {
         response.setData(formError(MissingParameter), "application/json");
         return;
@@ -199,13 +210,15 @@ void onUserLogin(const HttpRequest &request, HttpResponse &response)
     QString username = request.arguments().value("username");
     QString password = request.arguments().value("password");
 
-    if (!request.arguments().contains("username") || !request.arguments().contains("password"))
+    if (!request.arguments().contains("username") ||
+        !request.arguments().contains("password"))
     {
         response.setData(formError(MissingParameter), "application/json");
         return;
     }
 
-    if (User::getByUsername(username).password() == password && !password.isNull())
+    if (User::getByUsername(username).password() == password &&
+        !password.isNull())
     {
         QString token = Token::generate();
         Singleton::tokens().insert(token, User::getByUsername(username).id());
