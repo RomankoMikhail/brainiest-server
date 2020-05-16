@@ -241,9 +241,9 @@ void WebServer::onHttpPacketParsed(QTcpSocket *socket,
     }
 
     if (connectionKeepAlive)
-        response.addHeader("connection", "keep-alive");
+        response.addHeader("Connection", "keep-alive");
     else
-        response.addHeader("connection", "close");
+        response.addHeader("Connection", "close");
 
     response.flush(socket);
 
