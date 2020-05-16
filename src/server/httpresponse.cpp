@@ -52,6 +52,8 @@ QString HttpResponse::statusCodeString() const
         return "Bad Request";
     case CodeForbidden:
         return "Forbidden";
+    case CodeNoContent:
+        return "No Content";
     case CodeNotFound:
         return "Not Found";
     case CodeRequestTimeout:

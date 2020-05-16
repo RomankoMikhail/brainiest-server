@@ -7,8 +7,7 @@
 #include <QMimeDatabase>
 #include <QMimeType>
 
-WebServer::WebServer(int maximumPendingConnections,
-                     int keepAliveTime,
+WebServer::WebServer(int maximumPendingConnections, int keepAliveTime,
                      QObject *parent)
     : QObject(parent)
 {
@@ -18,7 +17,7 @@ WebServer::WebServer(int maximumPendingConnections,
     const int milisecondsInSecond = 1000;
 
     mMaximumPendingConnections = maximumPendingConnections;
-    mKeepAliveTime = keepAliveTime * milisecondsInSecond;
+    mKeepAliveTime             = keepAliveTime * milisecondsInSecond;
 }
 
 WebServer::~WebServer()
@@ -214,23 +213,39 @@ void WebServer::onHttpPacketParsed(QTcpSocket *socket,
 
     HttpResponse response;
 
-    if (httpCallback != nullptr)
+    if (request.method() == "options")
     {
-        httpCallback(request, response);
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Allow-Methods",
+                           "POST, GET, OPTIONS, DELETE, PUT");
+        response.addHeader("Access-Control-Allow-Headers",
+                           "append,delete,entries,foreach,get,has,keys,set,"
+                           "values,Authorization");
+        response.setStatusCode(HttpResponse::CodeNoContent);
     }
     else
     {
-        response.setStatusCode(HttpResponse::CodeNotFound);
-        response.write("<html><head></head><body>");
-        response.write("<h1>Resource not found</h1>");
-        response.write(QString("<p>The requested resource \"" + accessPath +
-                               "\" not found</p>")
-                           .toUtf8());
+        if (httpCallback != nullptr)
+        {
+            httpCallback(request, response);
+        }
+        else
+        {
+            response.setStatusCode(HttpResponse::CodeNotFound);
+            response.write("<html><head></head><body>");
+            response.write("<h1>Resource not found</h1>");
+            response.write(QString("<p>The requested resource \"" + accessPath +
+                                   "\" not found</p>")
+                               .toUtf8());
+        }
     }
 
     response.addHeader("Access-Control-Allow-Origin", "*");
-    response.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
-    response.addHeader("Access-Control-Allow-Headers", "append,delete,entries,foreach,get,has,keys,set,values,Authorization");
+    response.addHeader("Access-Control-Allow-Methods",
+                       "POST, GET, OPTIONS, DELETE, PUT");
+    response.addHeader(
+        "Access-Control-Allow-Headers",
+        "append,delete,entries,foreach,get,has,keys,set,values,Authorization");
 
     bool connectionKeepAlive = true;
 

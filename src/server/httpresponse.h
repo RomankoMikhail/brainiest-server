@@ -11,6 +11,7 @@ public:
     {
         CodeSwitchingProtocols  = 101, //!<
         CodeOk                  = 200, //!<
+        CodeNoContent           = 204, //!<
         CodeNotModified         = 304, //!<
         CodeBadRequest          = 400, //!<
         CodeForbidden           = 403, //!<

@@ -30,7 +30,9 @@ int messageCallback(http_parser *parser)
     case HTTP_POST:
         caller->setMethod("post");
         break;
-
+    case HTTP_OPTIONS:
+        caller->setMethod("options");
+        break;
     default:
         caller->setMethod("");
         break;
