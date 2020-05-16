@@ -228,6 +228,8 @@ void WebServer::onHttpPacketParsed(QTcpSocket *socket,
                            .toUtf8());
     }
 
+    response.addHeader("Access-Control-Allow-Origin:", "*");
+
     bool connectionKeepAlive = true;
 
     for (const auto &connectionStrings : request.headers().values("connection"))
