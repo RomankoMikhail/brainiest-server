@@ -9,7 +9,8 @@ void HttpResponse::write(const QByteArray &array)
 
 void HttpResponse::flush(QTcpSocket *socket)
 {
-    socket->write(QString("HTTP/1.1 " + QString::number(statusCode()) + "\r\n").toUtf8());
+    socket->write(
+        QString("HTTP/1.1 " + QString::number(statusCode()) + " " + statusCodeString() + "\r\n").toUtf8());
 
     addHeader("Content-Length", QString::number(mData.size()));
 
@@ -37,6 +38,43 @@ HttpResponse::Code HttpResponse::statusCode() const
 void HttpResponse::setStatusCode(Code statusCode)
 {
     mStatusCode = statusCode;
+}
+
+QString HttpResponse::statusCodeString() const
+{
+    switch (mStatusCode)
+    {
+    case CodeSwitchingProtocols:
+        return "Switching Protocols";
+    case CodeNotModified:
+        return "Not Modified";
+    case CodeBadRequest:
+        return "Bad Request";
+    case CodeForbidden:
+        return "Forbidden";
+    case CodeNotFound:
+        return "Not Found";
+    case CodeRequestTimeout:
+        return "Request Timeout";
+    case CodeLengthRequired:
+        return "Length Required";
+    case CodePayloadTooLarge:
+        return "Payload Too Large";
+    case CodeUriTooLong:
+        return "URI Too Long";
+    case CodeInternalServerError:
+        return "Internal Server Error";
+    case CodeNotImplemented:
+        return "Not Implemented";
+    case CodeServiceUnavailable:
+        return "Service Unavailable";
+    case CodeVersionNotSupported:
+        return "Version Not Supported";
+
+    case CodeOk:
+    default:
+        return "Ok";
+    }
 }
 
 QMultiMap<QString, QString> HttpResponse::headers() const

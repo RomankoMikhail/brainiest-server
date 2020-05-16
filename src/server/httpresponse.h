@@ -31,6 +31,7 @@ public:
     HttpResponse() = default;
     Code statusCode() const;
     void setStatusCode(Code statusCode);
+    QString statusCodeString() const;
 
     QMultiMap<QString, QString> headers() const;
     void setHeaders(const QMultiMap<QString, QString> &headers);
@@ -39,8 +40,6 @@ public:
     QByteArray data() const;
     void setData(const QByteArray &data);
     void setData(const QByteArray &data, const QString &mimeType);
-
-    friend class ApiController;
 
 private:
     QMultiMap<QString, QString> mHeaders;
