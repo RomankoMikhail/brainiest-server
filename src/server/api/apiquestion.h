@@ -8,6 +8,7 @@ void onQuestionAdd(const HttpRequest &request, HttpResponse &response);
 void onQuestionAddAnswer(const HttpRequest &request, HttpResponse &response);
 void onQuestionInfo(const HttpRequest &request, HttpResponse &response);
 void onQuestionList(const HttpRequest &request, HttpResponse &response);
+void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response);
 void onQuestionListAnswers(const HttpRequest &request, HttpResponse &response);
 void onQuestionRemoveAnswer(const HttpRequest &request, HttpResponse &response);
 void onQuestionThemes(const HttpRequest &request, HttpResponse &response);

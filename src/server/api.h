@@ -12,7 +12,11 @@ enum ErrorCodes
     InvalidToken,
     TokenRequired,
     MissingParameter,
-    NotFound
+    NotFound,
+    GameIsRunning,
+    GameIsClosed,
+    NotYourTurn,
+    NotInGame,
 };
 
 QByteArray formError(ErrorCodes code = GeneralError);

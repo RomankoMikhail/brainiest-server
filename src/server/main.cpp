@@ -169,12 +169,24 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/user/list", onUserList);
     server.registerHttpRoute("/api/user/info", onUserInfo);
     server.registerHttpRoute("/api/user/update", onUserUpdate);
+    server.registerHttpRoute("/api/user/password/change", onUserChangePassword);
+
+    /* outdated */
     server.registerHttpRoute("/api/user/changePassword", onUserChangePassword);
 
     server.registerHttpRoute("/api/question/info", onQuestionInfo);
     server.registerHttpRoute("/api/question/update", onQuestionUpdate);
     server.registerHttpRoute("/api/question/add", onQuestionAdd);
     server.registerHttpRoute("/api/question/list", onQuestionList);
+    server.registerHttpRoute("/api/question/list/detailed", onQuestionListDetailed);
+    server.registerHttpRoute("/api/question/answers/list", onQuestionListAnswers);
+    server.registerHttpRoute("/api/question/answers/add", onQuestionAddAnswer);
+    server.registerHttpRoute("/api/question/answers/remove", onQuestionRemoveAnswer);
+    server.registerHttpRoute("/api/question/answers/update", onQuestionUpdateAnswer);
+
+
+    /* outdated */
+    server.registerHttpRoute("/api/question/listDetailed", onQuestionListDetailed);
     server.registerHttpRoute("/api/question/listAnswers", onQuestionListAnswers);
     server.registerHttpRoute("/api/question/addAnswer", onQuestionAddAnswer);
     server.registerHttpRoute("/api/question/removeAnswer", onQuestionRemoveAnswer);
@@ -190,6 +202,9 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/answer/update", onAnswerUpdate);
     server.registerHttpRoute("/api/answer/add", onAnswerAdd);
     server.registerHttpRoute("/api/answer/list", onAnswerList);
+    server.registerHttpRoute("/api/answer/questions/list", onAnswerListQuestions);
+
+    /* outdated */
     server.registerHttpRoute("/api/answer/listQuestions", onAnswerListQuestions);
 
     server.registerWebSocketRoute("/api/echo", onEchoServer);

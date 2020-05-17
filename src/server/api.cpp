@@ -11,7 +11,11 @@ static QString ErrorMessages[]{"Ok",
                                "Token not found or invalid token given",
                                "This method requires token",
                                "One or several of the parameters specified was missing or invalid",
-                               "Data not found"};
+                               "Data not found",
+                                "Game is currently running",
+                                "Game is closed",
+                                "This is not your turn",
+                                "You are not in this game"};
 
 QByteArray formError(ErrorCodes code)
 {

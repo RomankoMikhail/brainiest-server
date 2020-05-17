@@ -3,6 +3,7 @@
 #include "../api.h"
 #include "../models/question.h"
 #include "../models/questionhasanswer.h"
+#include "../models/answer.h"
 #include "../singleton.hpp"
 #include "token.h"
 
@@ -356,4 +357,59 @@ void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response)
     }
 
     response.setData(formResponse(), "application/json");
+}
+
+void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
+{
+    if (!request.arguments().contains("token"))
+    {
+        response.setData(formError(TokenRequired), "application/json");
+        return;
+    }
+
+    QString token = request.arguments().value("token");
+
+    if (!Singleton::tokens().contains(token))
+    {
+        response.setData(formError(InvalidToken), "application/json");
+        return;
+    }
+
+    auto ids = Question::getIds();
+
+    QJsonObject object;
+    QJsonArray array;
+
+    for (const auto &id : ids)
+    {
+        QJsonObject item;
+
+        Question question = Question::getById(id);
+
+        item["id"]       = question.id();
+        item["theme"]    = question.theme();
+        item["question"] = question.question();
+        item["type"]     = question.type();
+        QJsonArray answers;
+
+        auto answersIds = QuestionHasAnswer::getAnswerIds(question.id());
+        for(const auto &answerId : answersIds)
+        {
+            QJsonObject answerObject;
+
+            Answer answer = Answer::getById(answerId);
+
+            answerObject["id"] = answer.id();
+            answerObject["answer"] = answer.answer();
+
+            answers.append(answerObject);
+        }
+
+        item["answers"] = answers;
+
+        array.append(item);
+    }
+
+    object["items"] = array;
+    response.setData(formResponse(object), "application/json");
 }
