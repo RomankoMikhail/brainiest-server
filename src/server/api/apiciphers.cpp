@@ -29,7 +29,8 @@ void onCiphersList(const HttpRequest &request, HttpResponse &response)
     }
 
     object["items"] = array;
-    response.setData(formResponse(object), "application/json");
+
+    SEND_RESPONSE(object);
 }
 
 void onCiphersAdd(const HttpRequest &request, HttpResponse &response)
@@ -41,12 +42,9 @@ void onCiphersAdd(const HttpRequest &request, HttpResponse &response)
     Ciphers cipher = Ciphers::create(word);
 
     if (!cipher.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onCiphersUpdate(const HttpRequest &request, HttpResponse &response)
@@ -59,20 +57,14 @@ void onCiphersUpdate(const HttpRequest &request, HttpResponse &response)
     Ciphers cipher = Ciphers::getById(id);
 
     if (!cipher.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     cipher.setWord(word);
 
     if (!cipher.update())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onCiphersInfo(const HttpRequest &request, HttpResponse &response)
@@ -84,14 +76,11 @@ void onCiphersInfo(const HttpRequest &request, HttpResponse &response)
     Ciphers answer = Ciphers::getById(id);
 
     if (!answer.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     QJsonObject object;
 
     object["word"] = answer.word();
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }

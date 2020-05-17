@@ -17,17 +17,14 @@ void onUserInfo(const HttpRequest &request, HttpResponse &response)
     User user = User::getById(id);
 
     if (!user.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
     object["username"]   = user.username();
     object["name"]       = user.name();
     object["surname"]    = user.surname();
     object["patronymic"] = user.patronymic();
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onUserRegister(const HttpRequest &request, HttpResponse &response)
@@ -42,12 +39,9 @@ void onUserRegister(const HttpRequest &request, HttpResponse &response)
     User newUser = User::create(name, surname, patronymic, username, password);
 
     if (!newUser.isValid())
-    {
-        response.setData(formError(RegistrationFailed), "application/json");
-        return;
-    }
+        SEND_ERROR(RegistrationFailed);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onUserUpdate(const HttpRequest &request, HttpResponse &response)
@@ -62,22 +56,16 @@ void onUserUpdate(const HttpRequest &request, HttpResponse &response)
     QString patronymic = request.arguments().value("patronymic");
 
     if (!user.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
     user.setName(name);
     user.setSurname(surname);
     user.setPatronymic(patronymic);
 
     if (!user.update())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
     return;
 }
 
@@ -91,27 +79,18 @@ void onUserChangePassword(const HttpRequest &request, HttpResponse &response)
     User user = User::getById(Singleton::tokens().value(token));
 
     if (!user.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
     if (user.password() != password)
-    {
-        response.setData(formError(AuthFailed), "application/json");
-        return;
-    }
+        SEND_ERROR(AuthFailed);
 
     user.setPassword(newPassword);
     user.update();
 
     if (!user.update())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
     return;
 }
 
@@ -119,7 +98,7 @@ void onTokenCheck(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_TOKEN();
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onUserList(const HttpRequest &request, HttpResponse &response)
@@ -147,7 +126,7 @@ void onUserList(const HttpRequest &request, HttpResponse &response)
     }
     object["items"] = userArray;
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onUserLogin(const HttpRequest &request, HttpResponse &response)
@@ -166,10 +145,7 @@ void onUserLogin(const HttpRequest &request, HttpResponse &response)
         object["token"] = token;
     }
     else
-    {
-        response.setData(formError(AuthFailed), "application/json");
-        return;
-    }
+        SEND_ERROR(AuthFailed);
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }

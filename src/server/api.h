@@ -7,36 +7,36 @@
 
 #define REQUIRE_INT(x)                                                         \
     if (!request.arguments().contains(STR_VALUE(x)))                           \
-    {                                                                          \
-        response.setData(formError(MissingParameter), "application/json");     \
-        return;                                                                \
-    }                                                                          \
+        SEND_ERROR(MissingParameter);                                          \
     int x = request.arguments().value(STR_VALUE(x)).toInt()
 
+#define SEND_RESPONSE(x)                                                       \
+    {                                                                          \
+        response.setData(formResponse(x), "application/json");                 \
+        return;                                                                \
+    }                                                                          \
+    (void)0
 
+#define SEND_ERROR(x)                                                          \
+    {                                                                          \
+        response.setData(formError(x), "application/json");                    \
+        return;                                                                \
+    }                                                                          \
+    (void)0
 
 #define REQUIRE_STRING(x)                                                      \
     if (!request.arguments().contains(STR_VALUE(x)))                           \
-    {                                                                          \
-        response.setData(formError(MissingParameter), "application/json");     \
-        return;                                                                \
-    }                                                                          \
+        SEND_ERROR(MissingParameter);                                          \
     QString x = request.arguments().value(STR_VALUE(x))
 
-#define REQUIRE_TOKEN()                                                          \
+#define REQUIRE_TOKEN()                                                        \
     if (!request.arguments().contains("token"))                                \
-    {                                                                          \
-        response.setData(formError(TokenRequired), "application/json");        \
-        return;                                                                \
-    }                                                                          \
+        SEND_ERROR(TokenRequired);                                             \
                                                                                \
     QString token = request.arguments().value("token");                        \
                                                                                \
     if (!Singleton::tokens().contains(token))                                  \
-    {                                                                          \
-        response.setData(formError(InvalidToken), "application/json");         \
-        return;                                                                \
-    }                                                                          \
+        SEND_ERROR(InvalidToken);                                              \
     (void)0
 
 enum ErrorCodes

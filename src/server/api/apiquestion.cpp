@@ -1,9 +1,9 @@
 #include "apiquestion.h"
 
 #include "../api.h"
+#include "../models/answer.h"
 #include "../models/question.h"
 #include "../models/questionhasanswer.h"
-#include "../models/answer.h"
 #include "../singleton.hpp"
 #include "token.h"
 
@@ -33,7 +33,7 @@ void onQuestionList(const HttpRequest &request, HttpResponse &response)
     }
 
     object["items"] = array;
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onQuestionAdd(const HttpRequest &request, HttpResponse &response)
@@ -47,12 +47,9 @@ void onQuestionAdd(const HttpRequest &request, HttpResponse &response)
     Question questionElement = Question::create(theme, question, type);
 
     if (!questionElement.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onQuestionUpdate(const HttpRequest &request, HttpResponse &response)
@@ -67,22 +64,16 @@ void onQuestionUpdate(const HttpRequest &request, HttpResponse &response)
     Question questionElement = Question::getById(id);
 
     if (!questionElement.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     questionElement.setType(type);
     questionElement.setTheme(theme);
     questionElement.setQuestion(question);
 
     if (!questionElement.update())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onQuestionInfo(const HttpRequest &request, HttpResponse &response)
@@ -94,10 +85,7 @@ void onQuestionInfo(const HttpRequest &request, HttpResponse &response)
     Question question = Question::getById(id);
 
     if (!question.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     QJsonObject object;
 
@@ -105,7 +93,7 @@ void onQuestionInfo(const HttpRequest &request, HttpResponse &response)
     object["question"] = question.question();
     object["type"]     = question.type();
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onQuestionThemes(const HttpRequest &request, HttpResponse &response)
@@ -123,7 +111,7 @@ void onQuestionThemes(const HttpRequest &request, HttpResponse &response)
     }
     object["items"] = array;
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onQuestionListAnswers(const HttpRequest &request, HttpResponse &response)
@@ -144,7 +132,7 @@ void onQuestionListAnswers(const HttpRequest &request, HttpResponse &response)
 
     object["items"] = array;
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onQuestionAddAnswer(const HttpRequest &request, HttpResponse &response)
@@ -158,12 +146,9 @@ void onQuestionAddAnswer(const HttpRequest &request, HttpResponse &response)
     auto questionHasAnswer = QuestionHasAnswer::create(id, answerId, correct);
 
     if (!questionHasAnswer.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onQuestionRemoveAnswer(const HttpRequest &request, HttpResponse &response)
@@ -176,18 +161,12 @@ void onQuestionRemoveAnswer(const HttpRequest &request, HttpResponse &response)
     auto questionHasAnswer = QuestionHasAnswer::getById(id, answerId);
 
     if (!questionHasAnswer.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     if (!questionHasAnswer.remove())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response)
@@ -201,20 +180,14 @@ void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response)
     auto questionHasAnswer = QuestionHasAnswer::getById(id, answerId);
 
     if (!questionHasAnswer.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     questionHasAnswer.setCorrect(correct);
 
     if (!questionHasAnswer.update())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
@@ -239,13 +212,13 @@ void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
         QJsonArray answers;
 
         auto answersIds = QuestionHasAnswer::getAnswerIds(question.id());
-        for(const auto &answerId : answersIds)
+        for (const auto &answerId : answersIds)
         {
             QJsonObject answerObject;
 
             Answer answer = Answer::getById(answerId);
 
-            answerObject["id"] = answer.id();
+            answerObject["id"]     = answer.id();
             answerObject["answer"] = answer.answer();
 
             answers.append(answerObject);
@@ -257,5 +230,5 @@ void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
     }
 
     object["items"] = array;
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }

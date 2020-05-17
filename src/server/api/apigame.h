@@ -12,5 +12,7 @@ void onGameAnswer(const HttpRequest &request, HttpResponse &response);
 void onGameList(const HttpRequest &request, HttpResponse &response);
 void onGameListOpen(const HttpRequest &request, HttpResponse &response);
 void onGameDebug(const HttpRequest &request, HttpResponse &response);
-
+void onGameSkip(const HttpRequest &request, HttpResponse &response);
+void onGameStart(const HttpRequest &request, HttpResponse &response);
+void onGameStatus(const HttpRequest &request, HttpResponse &response);
 #endif // APIGAME_H

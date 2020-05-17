@@ -30,7 +30,8 @@ void onAnswerList(const HttpRequest &request, HttpResponse &response)
     }
 
     object["items"] = array;
-    response.setData(formResponse(object), "application/json");
+
+    SEND_RESPONSE(object);
 }
 
 void onAnswerAdd(const HttpRequest &request, HttpResponse &response)
@@ -41,12 +42,9 @@ void onAnswerAdd(const HttpRequest &request, HttpResponse &response)
     Answer answerElement = Answer::create(answer);
 
     if (!answerElement.isValid())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onAnswerUpdate(const HttpRequest &request, HttpResponse &response)
@@ -59,20 +57,14 @@ void onAnswerUpdate(const HttpRequest &request, HttpResponse &response)
     Answer answerElement = Answer::getById(id);
 
     if (!answerElement.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     answerElement.setAnswer(answer);
 
     if (!answerElement.update())
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
+        SEND_ERROR(GeneralError);
 
-    response.setData(formResponse(), "application/json");
+    SEND_RESPONSE();
 }
 
 void onAnswerInfo(const HttpRequest &request, HttpResponse &response)
@@ -83,16 +75,13 @@ void onAnswerInfo(const HttpRequest &request, HttpResponse &response)
     Answer answerElement = Answer::getById(id);
 
     if (!answerElement.isValid())
-    {
-        response.setData(formError(NotFound), "application/json");
-        return;
-    }
+        SEND_ERROR(NotFound);
 
     QJsonObject object;
 
     object["answer"] = answerElement.answer();
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
 
 void onAnswerListQuestions(const HttpRequest &request, HttpResponse &response)
@@ -113,5 +102,5 @@ void onAnswerListQuestions(const HttpRequest &request, HttpResponse &response)
 
     object["items"] = array;
 
-    response.setData(formResponse(object), "application/json");
+    SEND_RESPONSE(object);
 }
