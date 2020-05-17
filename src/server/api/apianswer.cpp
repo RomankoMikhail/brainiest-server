@@ -10,19 +10,7 @@
 
 void onAnswerList(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
+    REQUIRE_TOKEN();
 
     auto ids = Answer::getIds();
 
@@ -47,31 +35,12 @@ void onAnswerList(const HttpRequest &request, HttpResponse &response)
 
 void onAnswerAdd(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("answer"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(answer);
+    REQUIRE_TOKEN();
 
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
+    Answer answerElement = Answer::create(answer);
 
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
-
-    QString answerText = request.arguments().value("answer");
-
-    Answer answer = Answer::create(answerText);
-
-    if (!answer.isValid())
+    if (!answerElement.isValid())
     {
         response.setData(formError(GeneralError), "application/json");
         return;
@@ -82,40 +51,22 @@ void onAnswerAdd(const HttpRequest &request, HttpResponse &response)
 
 void onAnswerUpdate(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("answer") || !request.arguments().contains("id"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(answer);
+    REQUIRE_INT(id);
 
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
+    REQUIRE_TOKEN();
 
-    QString token = request.arguments().value("token");
+    Answer answerElement = Answer::getById(id);
 
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
-
-    QString answerText = request.arguments().value("answer");
-    int id             = request.arguments().value("id").toInt();
-
-    Answer answer = Answer::getById(id);
-
-    if (!answer.isValid())
+    if (!answerElement.isValid())
     {
         response.setData(formError(NotFound), "application/json");
         return;
     }
 
-    answer.setAnswer(answerText);
+    answerElement.setAnswer(answer);
 
-    if (!answer.update())
+    if (!answerElement.update())
     {
         response.setData(formError(GeneralError), "application/json");
         return;
@@ -126,17 +77,12 @@ void onAnswerUpdate(const HttpRequest &request, HttpResponse &response)
 
 void onAnswerInfo(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("id"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_INT(id);
+    REQUIRE_TOKEN();
 
-    int id = request.arguments().value("id").toInt();
+    Answer answerElement = Answer::getById(id);
 
-    Answer answer = Answer::getById(id);
-
-    if (!answer.isValid())
+    if (!answerElement.isValid())
     {
         response.setData(formError(NotFound), "application/json");
         return;
@@ -144,34 +90,15 @@ void onAnswerInfo(const HttpRequest &request, HttpResponse &response)
 
     QJsonObject object;
 
-    object["answer"] = answer.answer();
+    object["answer"] = answerElement.answer();
 
     response.setData(formResponse(object), "application/json");
 }
 
 void onAnswerListQuestions(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("id"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
-
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
-
-    int id = request.arguments().value("id").toInt();
+    REQUIRE_INT(id);
+    REQUIRE_TOKEN();
 
     QList<int> ids = QuestionHasAnswer::getQuestionIds(id);
 

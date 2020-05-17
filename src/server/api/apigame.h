@@ -5,8 +5,12 @@
 #include "../httpresponse.h"
 
 void onGameAdd(const HttpRequest &request, HttpResponse &response);
+void onGameUpdate(const HttpRequest &request, HttpResponse &response);
+void onGameJoin(const HttpRequest &request, HttpResponse &response);
+void onGameInfo(const HttpRequest &request, HttpResponse &response);
+void onGameAnswer(const HttpRequest &request, HttpResponse &response);
 void onGameList(const HttpRequest &request, HttpResponse &response);
 void onGameListOpen(const HttpRequest &request, HttpResponse &response);
-void onGameListComplete(const HttpRequest &request, HttpResponse &response);
+
 
 #endif // APIGAME_H

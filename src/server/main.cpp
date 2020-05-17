@@ -39,6 +39,7 @@ bool isPathInDirectory(const QString &filePath, const QString &directoryPath)
 #include "api/apiciphers.h"
 #include "api/apiquestion.h"
 #include "api/apiuser.h"
+#include "api/apigame.h"
 
 WebSocketFrame onEchoServer(SocketContext & /*context*/, const WebSocketFrame &frame)
 {
@@ -119,8 +120,6 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
 }
 
 
-#include "models/answer.h"
-
 int main(int argc, char *argv[])
 {
     //controller.add("/api/user/login", new ApiUserLogin);
@@ -155,11 +154,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if(!Answer::getById(1).isValid())
-    {
-        Answer::create("Не знаю");
-    }
-
     WebServer server(maxClient, connectionTimeout);
 
     server.registerHttpRoute("^\\/((?!api)).*$", onFileSystemAccess);
@@ -171,9 +165,6 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/user/update", onUserUpdate);
     server.registerHttpRoute("/api/user/password/change", onUserChangePassword);
 
-    /* outdated */
-    server.registerHttpRoute("/api/user/changePassword", onUserChangePassword);
-
     server.registerHttpRoute("/api/question/info", onQuestionInfo);
     server.registerHttpRoute("/api/question/update", onQuestionUpdate);
     server.registerHttpRoute("/api/question/add", onQuestionAdd);
@@ -183,14 +174,6 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/question/answers/add", onQuestionAddAnswer);
     server.registerHttpRoute("/api/question/answers/remove", onQuestionRemoveAnswer);
     server.registerHttpRoute("/api/question/answers/update", onQuestionUpdateAnswer);
-
-
-    /* outdated */
-    server.registerHttpRoute("/api/question/listDetailed", onQuestionListDetailed);
-    server.registerHttpRoute("/api/question/listAnswers", onQuestionListAnswers);
-    server.registerHttpRoute("/api/question/addAnswer", onQuestionAddAnswer);
-    server.registerHttpRoute("/api/question/removeAnswer", onQuestionRemoveAnswer);
-    server.registerHttpRoute("/api/question/updateAnswer", onQuestionUpdateAnswer);
     server.registerHttpRoute("/api/question/themes", onQuestionThemes);
 
     server.registerHttpRoute("/api/ciphers/info", onCiphersInfo);
@@ -204,8 +187,23 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/answer/list", onAnswerList);
     server.registerHttpRoute("/api/answer/questions/list", onAnswerListQuestions);
 
+    server.registerHttpRoute("/api/game/add", onGameAdd);
+    server.registerHttpRoute("/api/game/list", onGameList);
+    server.registerHttpRoute("/api/game/list/open", onGameListOpen);
+    server.registerHttpRoute("/api/game/update", onGameUpdate);
+    server.registerHttpRoute("/api/game/join", onGameJoin);
+    server.registerHttpRoute("/api/game/info", onGameInfo);
+    server.registerHttpRoute("/api/game/answer", onGameAnswer);
+
+
     /* outdated */
     server.registerHttpRoute("/api/answer/listQuestions", onAnswerListQuestions);
+    server.registerHttpRoute("/api/question/listDetailed", onQuestionListDetailed);
+    server.registerHttpRoute("/api/question/listAnswers", onQuestionListAnswers);
+    server.registerHttpRoute("/api/question/addAnswer", onQuestionAddAnswer);
+    server.registerHttpRoute("/api/question/removeAnswer", onQuestionRemoveAnswer);
+    server.registerHttpRoute("/api/question/updateAnswer", onQuestionUpdateAnswer);
+    server.registerHttpRoute("/api/user/changePassword", onUserChangePassword);
 
     server.registerWebSocketRoute("/api/echo", onEchoServer);
 

@@ -9,19 +9,7 @@
 
 void onCiphersList(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
+    REQUIRE_TOKEN();
 
     auto ids = Ciphers::getIds();
 
@@ -46,27 +34,9 @@ void onCiphersList(const HttpRequest &request, HttpResponse &response)
 
 void onCiphersAdd(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("word"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(word);
 
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
-
-    QString word = request.arguments().value("word");
+    REQUIRE_TOKEN();
 
     Ciphers cipher = Ciphers::create(word);
 
@@ -81,28 +51,10 @@ void onCiphersAdd(const HttpRequest &request, HttpResponse &response)
 
 void onCiphersUpdate(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("word") || !request.arguments().contains("id"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(word);
+    REQUIRE_INT(id);
 
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
-
-    QString word = request.arguments().value("word");
-    int id       = request.arguments().value("id").toInt();
+    REQUIRE_TOKEN();
 
     Ciphers cipher = Ciphers::getById(id);
 
@@ -125,13 +77,9 @@ void onCiphersUpdate(const HttpRequest &request, HttpResponse &response)
 
 void onCiphersInfo(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("id"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_INT(id);
 
-    int id = request.arguments().value("id").toInt();
+    REQUIRE_TOKEN();
 
     Ciphers answer = Ciphers::getById(id);
 

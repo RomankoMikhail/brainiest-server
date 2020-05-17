@@ -8,15 +8,11 @@
 
 void onUserInfo(const HttpRequest &request, HttpResponse &response)
 {
+    REQUIRE_INT(id);
+
+    REQUIRE_TOKEN();
+
     QJsonObject object;
-
-    if (!request.arguments().contains("id"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
-
-    int id = request.arguments().value("id").toInt();
 
     User user = User::getById(id);
 
@@ -36,19 +32,11 @@ void onUserInfo(const HttpRequest &request, HttpResponse &response)
 
 void onUserRegister(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("username") ||
-        !request.arguments().contains("password") ||
-        !request.arguments().contains("name") ||
-        !request.arguments().contains("surname"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(username);
+    REQUIRE_STRING(password);
+    REQUIRE_STRING(name);
+    REQUIRE_STRING(surname);
 
-    QString username   = request.arguments().value("username");
-    QString password   = request.arguments().value("password");
-    QString name       = request.arguments().value("name");
-    QString surname    = request.arguments().value("surname");
     QString patronymic = request.arguments().value("patronymic");
 
     User newUser = User::create(name, surname, patronymic, username, password);
@@ -64,31 +52,13 @@ void onUserRegister(const HttpRequest &request, HttpResponse &response)
 
 void onUserUpdate(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("name") ||
-        !request.arguments().contains("surname"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(name);
+    REQUIRE_STRING(surname);
 
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
+    REQUIRE_TOKEN();
 
     User user = User::getById(Singleton::tokens().value(token));
 
-    QString name       = request.arguments().value("name");
-    QString surname    = request.arguments().value("surname");
     QString patronymic = request.arguments().value("patronymic");
 
     if (!user.isValid())
@@ -113,28 +83,10 @@ void onUserUpdate(const HttpRequest &request, HttpResponse &response)
 
 void onUserChangePassword(const HttpRequest &request, HttpResponse &response)
 {
-    if (!request.arguments().contains("password") ||
-        !request.arguments().contains("newPassword"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
+    REQUIRE_STRING(password);
+    REQUIRE_STRING(newPassword);
 
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token       = request.arguments().value("token");
-    QString password    = request.arguments().value("password");
-    QString newPassword = request.arguments().value("newPassword");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
+    REQUIRE_TOKEN();
 
     User user = User::getById(Singleton::tokens().value(token));
 
@@ -165,21 +117,9 @@ void onUserChangePassword(const HttpRequest &request, HttpResponse &response)
 
 void onUserList(const HttpRequest &request, HttpResponse &response)
 {
+    REQUIRE_TOKEN();
+
     QJsonObject object;
-
-    if (!request.arguments().contains("token"))
-    {
-        response.setData(formError(TokenRequired), "application/json");
-        return;
-    }
-
-    QString token = request.arguments().value("token");
-
-    if (!Singleton::tokens().contains(token))
-    {
-        response.setData(formError(InvalidToken), "application/json");
-        return;
-    }
 
     QList<int> ids = User::getIds();
 
@@ -205,17 +145,10 @@ void onUserList(const HttpRequest &request, HttpResponse &response)
 
 void onUserLogin(const HttpRequest &request, HttpResponse &response)
 {
+    REQUIRE_STRING(username);
+    REQUIRE_STRING(password);
+
     QJsonObject object;
-
-    QString username = request.arguments().value("username");
-    QString password = request.arguments().value("password");
-
-    if (!request.arguments().contains("username") ||
-        !request.arguments().contains("password"))
-    {
-        response.setData(formError(MissingParameter), "application/json");
-        return;
-    }
 
     if (User::getByUsername(username).password() == password &&
         !password.isNull())
