@@ -115,6 +115,13 @@ void onUserChangePassword(const HttpRequest &request, HttpResponse &response)
     return;
 }
 
+void onTokenCheck(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+
+    response.setData(formResponse(), "application/json");
+}
+
 void onUserList(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_TOKEN();

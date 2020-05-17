@@ -41,12 +41,15 @@ bool isPathInDirectory(const QString &filePath, const QString &directoryPath)
 #include "api/apiuser.h"
 #include "api/apigame.h"
 
-WebSocketFrame onEchoServer(SocketContext & /*context*/, const WebSocketFrame &frame)
+WebSocketFrame onInformServer(SocketContext & /*context*/, const WebSocketFrame &frame)
 {
     return frame;
 }
 
 static QString webrootDirectory = "webroot";
+extern WebServer *webServer;
+
+WebServer *webServer = nullptr;
 
 void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
 {
@@ -155,6 +158,7 @@ int main(int argc, char *argv[])
     }
 
     WebServer server(maxClient, connectionTimeout);
+    webServer = &server;
 
     server.registerHttpRoute("^\\/((?!api)).*$", onFileSystemAccess);
 
@@ -194,6 +198,9 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/game/join", onGameJoin);
     server.registerHttpRoute("/api/game/info", onGameInfo);
     server.registerHttpRoute("/api/game/answer", onGameAnswer);
+    server.registerHttpRoute("/api/game/debug", onGameDebug);
+
+    server.registerHttpRoute("/api/token/check", onTokenCheck);
 
 
     /* outdated */
@@ -205,7 +212,7 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/question/updateAnswer", onQuestionUpdateAnswer);
     server.registerHttpRoute("/api/user/changePassword", onUserChangePassword);
 
-    server.registerWebSocketRoute("/api/echo", onEchoServer);
+    server.registerWebSocketRoute("/api/inform", onInformServer);
 
     if (server.listen(QHostAddress(address), port))
     {

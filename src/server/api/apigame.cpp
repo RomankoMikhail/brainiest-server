@@ -2,6 +2,7 @@
 
 #include "../api.h"
 #include "../models/game.h"
+#include "../webserver.hpp"
 #include "../singleton.hpp"
 #include "token.h"
 
@@ -69,6 +70,21 @@ void onGameListOpen(const HttpRequest &request, HttpResponse &response)
     object["items"] = gameArray;
 
     response.setData(formResponse(object), "application/json");
+}
+
+extern WebServer *webServer;
+
+void onGameDebug(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_STRING(message);
+
+    WebSocketFrame frame;
+
+    frame.setData(message);
+    frame.setOpcode(WebSocketFrame::OpcodeText);
+    frame.setIsFinalFrame(true);
+
+    webServer->sendAllWebSockets(frame);
 }
 
 void onGameUpdate(const HttpRequest &request, HttpResponse &response)

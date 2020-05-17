@@ -38,10 +38,10 @@ public:
     void registerWebSocketRoute(const QString &pattern, onWebsocketFrameFunction callback);
 
 
-
+    void sendAllWebSockets(WebSocketFrame &frame);
 private slots:
 
-    void sendAllWebSockets(WebSocketFrame &frame);
+
 
     void onNewConnection();
     void onDisconnect();

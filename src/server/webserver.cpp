@@ -173,8 +173,11 @@ void WebServer::onWebSocketFrameParsed(QTcpSocket *socket,
         break;
     }
 
-    socket->write(returnFrame.toByteArray());
-    socket->flush();
+    if(!returnFrame.data().isEmpty())
+    {
+        socket->write(returnFrame.toByteArray());
+        socket->flush();
+    }
 }
 
 void WebServer::onHttpPacketParsed(QTcpSocket *socket,
@@ -279,7 +282,13 @@ void WebServer::sendAllWebSockets(WebSocketFrame &frame)
         Protocols socketProtocol = static_cast<Protocols>(
             context.socket->property("protocol").toInt());
         if (socketProtocol == ProtocolWebSocket)
+        {
+            qDebug() << "Sending WebSocket protocol";
+            qDebug() << "Sending" << frame.data();
+            qDebug() << "Raw: " << frame.toByteArray();
+
             context.socket->write(frame.toByteArray());
+        }
     }
 }
 
