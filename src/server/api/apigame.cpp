@@ -15,11 +15,60 @@ void onGameAdd(const HttpRequest &request, HttpResponse &response)
 void onGameList(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_TOKEN();
+
+    QJsonObject object;
+
+    QList<int> ids = Game::getIds();
+
+    QJsonArray gameArray;
+
+    for (const auto &id : ids)
+    {
+        QJsonObject userObject;
+        Game game = Game::getById(id);
+
+        userObject["id"]       = game.id();
+        userObject["authorId"] = game.authorId();
+        userObject["date"]     = game.date().toMSecsSinceEpoch();
+        userObject["complete"] = game.isComplete();
+        userObject["open"]     = game.isOpen();
+
+        gameArray.append(userObject);
+    }
+    object["items"] = gameArray;
+
+    response.setData(formResponse(object), "application/json");
 }
 
 void onGameListOpen(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_TOKEN();
+
+    QJsonObject object;
+
+    QList<int> ids = Game::getIds();
+
+    QJsonArray gameArray;
+
+    for (const auto &id : ids)
+    {
+        QJsonObject userObject;
+        Game game = Game::getById(id);
+
+        if(game.isOpen() == false)
+            continue;
+
+        userObject["id"]       = game.id();
+        userObject["authorId"] = game.authorId();
+        userObject["date"]     = game.date().toMSecsSinceEpoch();
+        userObject["complete"] = game.isComplete();
+        userObject["open"]     = game.isOpen();
+
+        gameArray.append(userObject);
+    }
+    object["items"] = gameArray;
+
+    response.setData(formResponse(object), "application/json");
 }
 
 void onGameUpdate(const HttpRequest &request, HttpResponse &response)
