@@ -25,6 +25,7 @@ public:
 
     const QByteArray &data() const;
     void setData(const QByteArray &data);
+    void setData(const QString &string);
 
     const WebSocketOpcode &opcode() const;
     void setOpcode(const WebSocketOpcode &opcode);

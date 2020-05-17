@@ -12,6 +12,7 @@ QByteArray WebSocketFrame::toByteArray(bool useMask)
     std::array<quint8, 2> header;
 
     header.at(0) = static_cast<char>(isFinalFrame()) << 7 | (static_cast<char>(opcode()) & 0x0F);
+    header.at(1) = 0;
 
     if (useMask)
         header.at(1) = 1 << 7;
@@ -75,6 +76,13 @@ const QByteArray &WebSocketFrame::data() const
 void WebSocketFrame::setData(const QByteArray &data)
 {
     mData = data;
+}
+
+void WebSocketFrame::setData(const QString &string)
+{
+    QByteArray data = string.toUtf8();
+    data.append((char)0);
+    setData(data);
 }
 
 const WebSocketFrame::WebSocketOpcode &WebSocketFrame::opcode() const
