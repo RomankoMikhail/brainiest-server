@@ -82,8 +82,6 @@ void onQuestionAdd(const HttpRequest &request, HttpResponse &response)
         return;
     }
 
-    QuestionHasAnswer::create(question.id(), 1, false);
-
     response.setData(formResponse(), "application/json");
 }
 
@@ -297,12 +295,6 @@ void onQuestionRemoveAnswer(const HttpRequest &request, HttpResponse &response)
     int id       = request.arguments().value("id").toInt();
     int answerId = request.arguments().value("answerId").toInt();
 
-    if(answerId == 1)
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
-
     auto questionHasAnswer = QuestionHasAnswer::getById(id, answerId);
 
     if (!questionHasAnswer.isValid())
@@ -346,12 +338,6 @@ void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response)
     int id       = request.arguments().value("id").toInt();
     int answerId = request.arguments().value("answerId").toInt();
     int correct = request.arguments().value("correct").toInt();
-
-    if(answerId == 1)
-    {
-        response.setData(formError(GeneralError), "application/json");
-        return;
-    }
 
     auto questionHasAnswer = QuestionHasAnswer::getById(id, answerId);
 

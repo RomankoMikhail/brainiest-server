@@ -21,7 +21,7 @@ const auto CREATE_QUESTION_HAS_ANSWER(
 const auto CREATE(
     R"(CREATE TABLE "user" (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name varchar(80) NOT NULL, surname varchar(80) NOT NULL, patronymic varchar(80), username varchar(32) NOT NULL UNIQUE, password varchar(256) NOT NULL, is_administator integer(10) NOT NULL))");
 const auto CREATE_USER_ANSWERED(
-    R"(CREATE TABLE user_answered (userid integer(10) NOT NULL, gameid integer(10) NOT NULL, questionid integer(10) NOT NULL, answerid integer(10) NOT NULL, PRIMARY KEY (userid, gameid, questionid, answerid), FOREIGN KEY(gameid) REFERENCES game(id), FOREIGN KEY(userid) REFERENCES "user"(id), FOREIGN KEY(questionid, answerid) REFERENCES question_has_answer(questionid, answerid)))");
+    R"(CREATE TABLE user_answered (userid integer(10) NOT NULL, gameid integer(10) NOT NULL, questionid integer(10) NOT NULL, answerid integer(10) NOT NULL, PRIMARY KEY (userid, gameid, questionid), FOREIGN KEY(gameid) REFERENCES game(id), FOREIGN KEY(userid) REFERENCES "user"(id), FOREIGN KEY(questionid) REFERENCES question(id), FOREIGN KEY(answerid) REFERENCES answer(id)))");
 
 Database::Database()
 {

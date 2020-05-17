@@ -33,9 +33,13 @@ SOURCES += \
     models/answer.cpp \
     models/ciphers.cpp \
     models/game.cpp \
+    models/gamehascipher.cpp \
+    models/gamehasquestion.cpp \
+    models/player.cpp \
     models/question.cpp \
     models/questionhasanswer.cpp \
     models/user.cpp \
+    models/useranswered.cpp \
     ongoinggame.cpp \
     token.cpp \
     websocketframe.cpp \
@@ -59,9 +63,13 @@ HEADERS += \
     models/answer.h \
     models/ciphers.h \
     models/game.h \
+    models/gamehascipher.h \
+    models/gamehasquestion.h \
+    models/player.h \
     models/question.h \
     models/questionhasanswer.h \
     models/user.h \
+    models/useranswered.h \
     ongoinggame.h \
     token.h \
     webserver.hpp \
