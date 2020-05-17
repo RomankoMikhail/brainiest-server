@@ -28,7 +28,6 @@ SOURCES += \
     api/apigame.cpp \
     api/apiquestion.cpp \
     api/apiuser.cpp \
-    game.cpp \
     httprequest.cpp \
     httpresponse.cpp \
     models/answer.cpp \
@@ -37,6 +36,7 @@ SOURCES += \
     models/question.cpp \
     models/questionhasanswer.cpp \
     models/user.cpp \
+    ongoinggame.cpp \
     token.cpp \
     websocketframe.cpp \
     websocketparser.cpp \
@@ -53,7 +53,6 @@ HEADERS += \
     api/apigame.h \
     api/apiquestion.h \
     api/apiuser.h \
-    game.h \
     httpparser.hpp \
     httprequest.h \
     httpresponse.h \
@@ -63,6 +62,7 @@ HEADERS += \
     models/question.h \
     models/questionhasanswer.h \
     models/user.h \
+    ongoinggame.h \
     token.h \
     webserver.hpp \
     websocketframe.hpp \
