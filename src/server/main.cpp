@@ -119,6 +119,7 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
 }
 
 
+#include "models/answer.h"
 
 int main(int argc, char *argv[])
 {
@@ -152,6 +153,11 @@ int main(int argc, char *argv[])
     {
         qCritical() << "Can't initialize database";
         return -1;
+    }
+
+    if(!Answer::getById(1).isValid())
+    {
+        Answer::create("Не знаю");
     }
 
     WebServer server(maxClient, connectionTimeout);

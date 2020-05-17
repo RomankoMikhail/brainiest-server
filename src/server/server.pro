@@ -28,6 +28,7 @@ SOURCES += \
     api/apigame.cpp \
     api/apiquestion.cpp \
     api/apiuser.cpp \
+    game.cpp \
     httprequest.cpp \
     httpresponse.cpp \
     models/answer.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
     api/apigame.h \
     api/apiquestion.h \
     api/apiuser.h \
+    game.h \
     httpparser.hpp \
     httprequest.h \
     httpresponse.h \
