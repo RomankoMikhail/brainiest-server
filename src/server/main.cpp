@@ -122,6 +122,8 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
     }
 }
 
+#include "jarowinkler.h"
+
 
 int main(int argc, char *argv[])
 {

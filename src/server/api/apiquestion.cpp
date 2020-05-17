@@ -220,6 +220,7 @@ void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
 
             answerObject["id"]     = answer.id();
             answerObject["answer"] = answer.answer();
+            answerObject["correct"] = QuestionHasAnswer::getById(question.id(), answer.id()).correct();
 
             answers.append(answerObject);
         }

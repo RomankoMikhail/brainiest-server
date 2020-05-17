@@ -31,6 +31,7 @@ SOURCES += \
     gamemanager.cpp \
     httprequest.cpp \
     httpresponse.cpp \
+    jarowinkler.cpp \
     models/answer.cpp \
     models/ciphers.cpp \
     models/game.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     httpparser.hpp \
     httprequest.h \
     httpresponse.h \
+    jarowinkler.h \
     models/answer.h \
     models/ciphers.h \
     models/game.h \
