@@ -2,6 +2,7 @@
 #define SINGLETONDATABASE_HPP
 
 #include "database.hpp"
+#include "currentgame.h"
 
 class Singleton
 {
@@ -19,6 +20,12 @@ public:
     {
         static QMap<QString, int> tokens;
         return tokens;
+    }
+
+    static QMap<int, CurrentGame> &games()
+    {
+        static QMap<int, CurrentGame> games;
+        return games;
     }
 
     static QMimeDatabase &mimeDatabase()

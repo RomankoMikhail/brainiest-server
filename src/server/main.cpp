@@ -121,12 +121,15 @@ void onFileSystemAccess(const HttpRequest &request, HttpResponse &response)
         }
     }
 }
+#include <QObject>
+
+#include "logic.h"
 
 #include "jarowinkler.h"
 
-
 int main(int argc, char *argv[])
 {
+
     //controller.add("/api/user/login", new ApiUserLogin);
 
     const quint16 defaultServerPort = 8080;
@@ -162,6 +165,8 @@ int main(int argc, char *argv[])
     WebServer server(maxClient, connectionTimeout);
     webServer = &server;
 
+    Logic l;
+
     server.registerHttpRoute("^\\/((?!api)).*$", onFileSystemAccess);
 
     server.registerHttpRoute("/api/user/login", onUserLogin);
@@ -193,15 +198,23 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/answer/list", onAnswerList);
     server.registerHttpRoute("/api/answer/questions/list", onAnswerListQuestions);
 
+
+
     server.registerHttpRoute("/api/game/add", onGameAdd);
+    server.registerHttpRoute("/api/game/answer/round1", onGameAnswerRound1);
+    server.registerHttpRoute("/api/game/answer/round2", onGameAnswerRound2);
+    server.registerHttpRoute("/api/game/answer/round3", onGameAnswerRound3);
+    server.registerHttpRoute("/api/game/debug", onGameDebug);
+    server.registerHttpRoute("/api/game/decrypt", onGameDecrypt);
+    server.registerHttpRoute("/api/game/info", onGameInfo);
+    server.registerHttpRoute("/api/game/join", onGameJoin);
     server.registerHttpRoute("/api/game/list", onGameList);
     server.registerHttpRoute("/api/game/list/open", onGameListOpen);
+    server.registerHttpRoute("/api/game/select/round2", onGameSelectRound2);
+    server.registerHttpRoute("/api/game/select/round3", onGameSelectRound3);
+    server.registerHttpRoute("/api/game/start", onGameStart);
+    server.registerHttpRoute("/api/game/status", onGameStatus);
     server.registerHttpRoute("/api/game/update", onGameUpdate);
-    server.registerHttpRoute("/api/game/join", onGameJoin);
-    server.registerHttpRoute("/api/game/info", onGameInfo);
-    server.registerHttpRoute("/api/game/answer", onGameAnswer);
-    server.registerHttpRoute("/api/game/debug", onGameDebug);
-    server.registerHttpRoute("/api/game/skip", onGameDebug);
 
     server.registerHttpRoute("/api/token/check", onTokenCheck);
 
@@ -228,3 +241,5 @@ int main(int argc, char *argv[])
 
     return QCoreApplication::exec();
 }
+
+

@@ -10,6 +10,9 @@ const auto UPDATE = QString(
 const auto SELECT_BY_ID = QString(
     R"(SELECT `answerid` FROM `user_answered` WHERE `userid` = ? and `gameid` = ? and `questionid` = ?)");
 
+const auto SELECT_USERS = QString(
+    R"(SELECT userid FROM user_answered WHERE gameid = ? and questionid = ?)");
+
 const auto DELETE =
     QString(R"(DELETE FROM `user_answered` WHERE `userid` = ? and `gameid` = ? and `questionid` = ?)");
 
@@ -63,6 +66,24 @@ UserAnswered UserAnswered::getById(int userId, int gameId, int questionId)
     userAnswered.mIsValid    = true;
 
     return userAnswered;
+}
+
+QList<int> UserAnswered::getUsersIds(int gameId, int questionId)
+{
+    QList<int> ids;
+
+    QSqlQuery query(Singleton::database().database());
+
+    query.prepare(SELECT_USERS);
+    query.addBindValue(gameId);
+    query.addBindValue(questionId);
+
+    while (query.next())
+    {
+        ids.push_back(query.value(0).toInt());
+    }
+
+    return ids;
 }
 
 bool UserAnswered::update()
