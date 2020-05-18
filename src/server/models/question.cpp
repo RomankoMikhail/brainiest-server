@@ -17,6 +17,8 @@ const auto SELECT_ALL_IDS = QString(R"(SELECT `id` FROM `question`)");
 
 const auto SELECT_ALL_THEMES = QString(R"(SELECT DISTINCT `theme` FROM `question`)");
 
+const auto DELETE = QString(R"(DELETE FROM `question` WHERE `id` = ?)");
+
 Question Question::create(const QString &theme, const QString &question, int type)
 {
     Question newQuestion;
@@ -165,6 +167,24 @@ bool Question::update()
         qDebug() << query.lastError().text();
 
     return result;
+}
+
+bool Question::remove()
+{
+    QSqlQuery query(Singleton::database().database());
+
+    query.prepare(DELETE);
+    query.addBindValue(mId);
+
+    if (!query.exec())
+    {
+        qDebug() << query.lastError().text();
+        return false;
+    }
+
+    mIsValid = false;
+
+    return true;
 }
 
 int Question::id() const

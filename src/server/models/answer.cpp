@@ -8,6 +8,8 @@ const auto UPDATE = QString(R"(UPDATE `answer` SET `answer` = ? WHERE `id` = ?)"
 
 const auto SELECT_BY_ID = QString(R"(SELECT `answer` FROM `answer` WHERE `id` = ?)");
 
+const auto SELECT_BY_ANSWER = QString(R"(SELECT `id` FROM `answer` WHERE `answer` = ?)");
+
 const auto SELECT_ALL_IDS = QString(R"(SELECT `id` FROM `answer`)");
 
 Answer Answer::create(QString answer)
@@ -66,6 +68,20 @@ Answer Answer::getById(int id)
     answer.mAnswer = query.value(0).toString();
 
     return answer;
+}
+
+Answer Answer::getByAnswer(QString answer)
+{
+    QSqlQuery query(Singleton::database().database());
+
+    query.prepare(SELECT_BY_ANSWER);
+    query.addBindValue(answer);
+    query.exec();
+
+    if (!query.next())
+        return Answer();
+
+    return getById(query.value(0).toInt());
 }
 
 int Answer::id() const

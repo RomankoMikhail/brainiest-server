@@ -1,7 +1,6 @@
 #ifndef ANSWER_H
 #define ANSWER_H
 
-
 #include <QString>
 
 class Answer
@@ -9,21 +8,23 @@ class Answer
 public:
     Answer() = default;
 
-    static Answer create(QString answer);
+    static Answer     create(QString answer);
     static QList<int> getIds();
-    static Answer getById(int id);
+    static Answer     getById(int id);
+    static Answer     getByAnswer(QString answer);
 
     int id() const;
 
     bool isValid() const;
 
     QString answer() const;
-    void setAnswer(const QString &answer);
+    void    setAnswer(const QString &answer);
 
     bool update();
+
 private:
-    int mId = -1;
-    bool mIsValid = false;
+    int     mId      = -1;
+    bool    mIsValid = false;
     QString mAnswer;
 };
 

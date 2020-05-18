@@ -24,6 +24,7 @@ public:
     void setType(int type);
 
     bool update();
+    bool remove();
 
     int id() const;
 

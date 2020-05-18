@@ -9,6 +9,7 @@ public:
     static UserAnswered create(int userId, int gameId, int questionId);
     static UserAnswered create(int userId, int gameId, int questionId, int answerId);
     static UserAnswered getById(int userId, int gameId, int questionId);
+    static QList<int> getGamesIds(int questionId);
     static QList<int> getUsersIds(int gameId, int questionId);
 
     UserAnswered() = default;

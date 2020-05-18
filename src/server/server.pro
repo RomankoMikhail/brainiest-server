@@ -27,6 +27,7 @@ SOURCES += \
     api/apiciphers.cpp \
     api/apigame.cpp \
     api/apiquestion.cpp \
+    api/apistatistics.cpp \
     api/apiuser.cpp \
     currentgame.cpp \
     httprequest.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     api/apiciphers.h \
     api/apigame.h \
     api/apiquestion.h \
+    api/apistatistics.h \
     api/apiuser.h \
     currentgame.h \
     httpparser.hpp \

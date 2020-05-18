@@ -4,6 +4,8 @@
 #include "../models/answer.h"
 #include "../models/question.h"
 #include "../models/questionhasanswer.h"
+#include "../models/gamehasquestion.h"
+#include "../models/useranswered.h"
 #include "../singleton.hpp"
 #include "token.h"
 
@@ -232,4 +234,100 @@ void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
 
     object["items"] = array;
     SEND_RESPONSE(object);
+}
+
+void onQuestionAddBatch(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+
+    REQUIRE_STRING(theme);
+    REQUIRE_STRING(question);
+    REQUIRE_INT(type);
+    REQUIRE_INT(correct);
+    REQUIRE_STRING(answer1);
+    REQUIRE_STRING(answer2);
+    REQUIRE_STRING(answer3);
+    REQUIRE_STRING(answer4);
+
+    Question questionElement = Question::create(theme, question, type);
+
+    if (!questionElement.isValid())
+        SEND_ERROR(GeneralError);
+
+    Answer ans1 = Answer::create(answer1);
+    if(!ans1.isValid())
+    {
+        ans1 = Answer::getByAnswer(answer1);
+        if(!ans1.isValid())
+            SEND_ERROR(GeneralError);
+    }
+
+    Answer ans2 = Answer::create(answer2);
+    if(!ans2.isValid())
+    {
+        ans2 = Answer::getByAnswer(answer2);
+        if(!ans2.isValid())
+            SEND_ERROR(GeneralError);
+    }
+
+    Answer ans3 = Answer::create(answer3);
+    if(!ans3.isValid())
+    {
+        ans3 = Answer::getByAnswer(answer3);
+        if(!ans3.isValid())
+            SEND_ERROR(GeneralError);
+    }
+
+    Answer ans4 = Answer::create(answer4);
+    if(!ans4.isValid())
+    {
+        ans4 = Answer::getByAnswer(answer1);
+        if(!ans4.isValid())
+            SEND_ERROR(GeneralError);
+    }
+
+    if(!QuestionHasAnswer::create(questionElement.id(), ans1.id(), (correct == 1)?(1):(0)).isValid())
+        SEND_ERROR(GeneralError);
+
+    if(!QuestionHasAnswer::create(questionElement.id(), ans2.id(), (correct == 2)?(1):(0)).isValid())
+        SEND_ERROR(GeneralError);
+
+    if(!QuestionHasAnswer::create(questionElement.id(), ans3.id(), (correct == 3)?(1):(0)).isValid())
+        SEND_ERROR(GeneralError);
+
+    if(!QuestionHasAnswer::create(questionElement.id(), ans4.id(), (correct == 4)?(1):(0)).isValid())
+        SEND_ERROR(GeneralError);
+
+    SEND_RESPONSE();
+}
+
+void onQuestionRemove(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+    REQUIRE_INT(id);
+
+    auto question = Question::getById(id);
+
+    if(!question.isValid())
+        SEND_ERROR(NotFound);
+
+    if(!GameHasQuestion::getGameIds(id).isEmpty())
+        SEND_ERROR(GeneralError);
+
+    if(!UserAnswered::getGamesIds(id).isEmpty())
+        SEND_ERROR(GeneralError);
+
+    auto ids = QuestionHasAnswer::getAnswerIds(id);
+
+    for(auto qhaid : ids)
+    {
+        auto qha = QuestionHasAnswer::getById(id, qhaid);
+        if(!qha.remove())
+            SEND_ERROR(GeneralError);
+    }
+
+    if(!question.remove())
+        SEND_ERROR(GeneralError);
+
+    SEND_RESPONSE();
 }
