@@ -75,6 +75,8 @@ private:
     bool everyoneAnswered(const int &questionId);
     bool everyoneDecrypted();
 
+    QVector<int> generateIndecies();
+
     void       notify();
     Order<int> mOrder;
 

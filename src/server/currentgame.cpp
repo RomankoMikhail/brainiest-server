@@ -1,13 +1,13 @@
 #include "currentgame.h"
 
 #include "models/answer.h"
+#include "models/ciphers.h"
 #include "models/gamehascipher.h"
 #include "models/gamehasquestion.h"
 #include "models/player.h"
 #include "models/question.h"
 #include "models/questionhasanswer.h"
 #include "models/useranswered.h"
-#include "models/ciphers.h"
 
 void CurrentGame::checkAnswer(const int &userId, const int &questionId, const int &answerId)
 {
@@ -35,7 +35,7 @@ QVector<int> CurrentGame::getTopUsers(int top)
                   return a.second >= b.second;
               });
 
-    for (int i = 0; i < std::min(top, usersScore.size()) ; i++)
+    for (int i = 0; i < std::min(top, usersScore.size()); i++)
         result.append(usersScore.at(i).first);
 
     return result;
@@ -103,7 +103,7 @@ bool CurrentGame::processSelectRound3(const int &userId, const int &index)
     if (index >= mRound3.size())
         return false;
 
-    if (!UserAnswered::getUsersIds(mGameId, mRound3.at(mRound3Index)).isEmpty())
+    if (!UserAnswered::getUsersIds(mGameId, mRound3.at(index)).isEmpty())
         return false;
 
     mRound3Index = index;
@@ -172,6 +172,8 @@ QJsonObject CurrentGame::status()
 
     object["users"] = usersLeft;
 
+    QJsonArray indeces;
+
     switch (mCurrentState)
     {
     case Round1:
@@ -191,7 +193,13 @@ QJsonObject CurrentGame::status()
 
     case Round3Select:
         object["currentUserId"] = mOrder.current();
-        // object["items"];
+
+        for (auto i : generateIndecies())
+        {
+            indeces.append(i);
+        }
+
+        object["indeces"] = indeces;
         break;
 
     case Round3:
@@ -310,7 +318,7 @@ bool CurrentGame::answerRound3(const int &userId, const QString &userAnswer)
 
 bool CurrentGame::selectRound2(const int &userId, const QString &theme)
 {
-    if(mCurrentState != Round2Select)
+    if (mCurrentState != Round2Select)
         return false;
 
     auto result = processSelectRound2(userId, theme);
@@ -326,7 +334,7 @@ bool CurrentGame::selectRound2(const int &userId, const QString &theme)
 
 bool CurrentGame::selectRound3(const int &userId, const int &index)
 {
-    if(mCurrentState != Round3Select)
+    if (mCurrentState != Round3Select)
         return false;
 
     auto result = processSelectRound3(userId, index);
@@ -334,24 +342,24 @@ bool CurrentGame::selectRound3(const int &userId, const int &index)
     if (result == false)
         return false;
 
-    setTime(5);
+    setTime(30);
     next(Round3);
     update();
     return true;
 }
 
-
-template<typename Iter, typename RandomGenerator>
-Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
+template <typename Iter, typename RandomGenerator>
+Iter select_randomly(Iter start, Iter end, RandomGenerator &g)
+{
     std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
     std::advance(start, dis(g));
     return start;
 }
 
-template<typename Iter>
-Iter select_randomly(Iter start, Iter end) {
+template <typename Iter> Iter select_randomly(Iter start, Iter end)
+{
     static std::random_device rd;
-    static std::mt19937 gen(rd());
+    static std::mt19937       gen(rd());
     return select_randomly(start, end, gen);
 }
 
@@ -467,12 +475,13 @@ void CurrentGame::update()
                     mOrder.append(id);
 
                 auto cipher = GameHasCipher::getCiphersIds(mGameId);
-                auto rc = select_randomly(cipher.begin(), cipher.end());
+                auto rc     = select_randomly(cipher.begin(), cipher.end());
 
-                if(rc != cipher.end())
+                if (rc != cipher.end())
                 {
                     setTime(60);
                     mWordToDecrypt = Ciphers::getById(*rc).word();
+                    mUsersDecrypted.clear();
                     next(Decrypt);
                 }
                 else
@@ -503,12 +512,13 @@ void CurrentGame::update()
                     mOrder.append(id);
 
                 auto cipher = GameHasCipher::getCiphersIds(mGameId);
-                auto rc = select_randomly(cipher.begin(), cipher.end());
+                auto rc     = select_randomly(cipher.begin(), cipher.end());
 
-                if(rc != cipher.end())
+                if (rc != cipher.end())
                 {
                     setTime(60);
                     mWordToDecrypt = Ciphers::getById(*rc).word();
+                    mUsersDecrypted.clear();
                     next(Decrypt);
                 }
                 else
@@ -527,7 +537,8 @@ void CurrentGame::update()
     case Round3:
         if (QDateTime::currentDateTime() >= mUntil || firstUnanswered(mRound3) == 0)
         {
-            UserAnswered::create(mOrder.current(), mGameId, mRound3[mRound3Index]);
+            if (QDateTime::currentDateTime() >= mUntil)
+                UserAnswered::create(mOrder.current(), mGameId, mRound3[mRound3Index]);
 
             if (firstUnanswered(mRound3) == 0)
             {
@@ -635,6 +646,19 @@ bool CurrentGame::everyoneDecrypted()
             return false;
     }
     return true;
+}
+
+QVector<int> CurrentGame::generateIndecies()
+{
+    QVector<int> result;
+
+    for (int i = 0; i < mRound3.size(); i++)
+    {
+        if (UserAnswered::getUsersIds(mGameId, mRound3[i]).isEmpty())
+            result.append(i);
+    }
+
+    return result;
 }
 
 #include <webserver.hpp>
