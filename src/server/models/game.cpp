@@ -63,7 +63,7 @@ Game Game::getById(int id)
     game.mAuthorId   = query.value(0).toInt();
     game.mDate       = query.value(1).toDateTime();
     game.mIsOpen     = query.value(2).toInt();
-    game.mIsComplete = query.value(2).toInt();
+    game.mIsComplete = query.value(3).toInt();
     game.mIsValid    = true;
 
     return game;

@@ -224,6 +224,7 @@ void WebServer::onHttpPacketParsed(QTcpSocket *socket,
     {
         if (httpCallback != nullptr)
         {
+            response.setStatusCode(HttpResponse::CodeOk);
             httpCallback(request, response);
         }
         else

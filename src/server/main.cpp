@@ -215,6 +215,11 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/game/start", onGameStart);
     server.registerHttpRoute("/api/game/status", onGameStatus);
     server.registerHttpRoute("/api/game/update", onGameUpdate);
+    server.registerHttpRoute("/api/game/questions/add", onGameAddQuestion);
+    server.registerHttpRoute("/api/game/ciphers/add", onGameAddCipher);
+    server.registerHttpRoute("/api/game/questions/remove", onGameRemoveQuestion);
+    server.registerHttpRoute("/api/game/ciphers/remove", onGameRemoveCipher);
+    server.registerHttpRoute("/api/game/quit", onGameQuit);
 
     server.registerHttpRoute("/api/token/check", onTokenCheck);
 

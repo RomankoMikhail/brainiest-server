@@ -88,8 +88,8 @@ private:
     QVector<int> mRound2;
     QVector<int> mRound3;
 
-    States mCurrentState;
-    States mPreviousState;
+    States mCurrentState = Prepare;
+    States mPreviousState = Prepare;
 
     QString mRound2Theme;
 

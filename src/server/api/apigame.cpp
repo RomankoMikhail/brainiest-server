@@ -115,9 +115,31 @@ void onGameUpdate(const HttpRequest &request, HttpResponse &response)
         SEND_ERROR(NotFound);
 
     game.setIsOpen(open);
-    game.setIsOpen(complete);
+    game.setIsComplete(complete);
 
     if (!game.update())
+        SEND_ERROR(GeneralError);
+
+    SEND_RESPONSE();
+}
+
+void onGameQuit(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_INT(id);
+
+    REQUIRE_TOKEN();
+
+    int  userId = Singleton::tokens().value(token);
+
+    if (Singleton::games().contains(id))
+        SEND_ERROR(GeneralError);
+
+    Player player = Player::getById(id, userId);
+
+    if (!player.isValid())
+        SEND_ERROR(GeneralError);
+
+    if (!player.remove())
         SEND_ERROR(GeneralError);
 
     SEND_RESPONSE();
@@ -141,8 +163,8 @@ void onGameJoin(const HttpRequest &request, HttpResponse &response)
     if (game.isComplete())
         SEND_ERROR(GameIsClosed);
 
-    if (game.authorId() == userId)
-        SEND_ERROR(GeneralError);
+    /*if (game.authorId() == userId)
+        SEND_ERROR(GeneralError);*/
 
     Player player = Player::getById(id, userId);
 

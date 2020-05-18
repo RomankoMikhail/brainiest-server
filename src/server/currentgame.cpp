@@ -7,6 +7,7 @@
 #include "models/question.h"
 #include "models/questionhasanswer.h"
 #include "models/useranswered.h"
+#include "models/ciphers.h"
 
 void CurrentGame::checkAnswer(const int &userId, const int &questionId, const int &answerId)
 {
@@ -34,7 +35,7 @@ QVector<int> CurrentGame::getTopUsers(int top)
                   return a.second >= b.second;
               });
 
-    for (int i = 0; i < top; i++)
+    for (int i = 0; i < std::min(top, usersScore.size()) ; i++)
         result.append(usersScore.at(i).first);
 
     return result;
@@ -60,9 +61,6 @@ bool CurrentGame::processAnswerRound1(const int &userId, const int &questionId,
 bool CurrentGame::processSelectRound2(const int &userId, const QString &theme)
 {
     if (mOrder.current() != userId)
-        return false;
-
-    if (!mRound2Theme.isNull())
         return false;
 
     if (!roundThemes(mRound2).contains(theme))
@@ -163,7 +161,7 @@ QJsonObject CurrentGame::status()
     QJsonObject object;
 
     object["state"] = mCurrentState;
-    object["time"]  = QDateTime::currentSecsSinceEpoch() - mUntil.toSecsSinceEpoch();
+    object["time"]  = mUntil.toSecsSinceEpoch() - QDateTime::currentSecsSinceEpoch();
 
     QJsonArray usersLeft;
 
@@ -209,6 +207,8 @@ QJsonObject CurrentGame::status()
     default:
         break;
     }
+
+    return object;
 }
 
 bool CurrentGame::load(int gameId)
@@ -217,7 +217,9 @@ bool CurrentGame::load(int gameId)
     auto ciphers   = GameHasCipher::getCiphersIds(gameId);
 
     if (questions.isEmpty() || ciphers.isEmpty())
+    {
         return false;
+    }
 
     for (auto questionId : questions)
     {
@@ -263,7 +265,7 @@ bool CurrentGame::load(int gameId)
 
 bool CurrentGame::decrypt(const int &userId, const QString &userAnswer)
 {
-    if (userAnswer.toUpper() == mWordToDecrypt.toUpper())
+    if (userAnswer.toUpper() != mWordToDecrypt.toUpper())
         return false;
 
     mUsersDecrypted.insert(userId, QDateTime::currentDateTime());
@@ -308,6 +310,9 @@ bool CurrentGame::answerRound3(const int &userId, const QString &userAnswer)
 
 bool CurrentGame::selectRound2(const int &userId, const QString &theme)
 {
+    if(mCurrentState != Round2Select)
+        return false;
+
     auto result = processSelectRound2(userId, theme);
 
     if (result == false)
@@ -321,6 +326,9 @@ bool CurrentGame::selectRound2(const int &userId, const QString &theme)
 
 bool CurrentGame::selectRound3(const int &userId, const int &index)
 {
+    if(mCurrentState != Round3Select)
+        return false;
+
     auto result = processSelectRound3(userId, index);
 
     if (result == false)
@@ -464,6 +472,7 @@ void CurrentGame::update()
                 if(rc != cipher.end())
                 {
                     setTime(60);
+                    mWordToDecrypt = Ciphers::getById(*rc).word();
                     next(Decrypt);
                 }
                 else
@@ -480,11 +489,12 @@ void CurrentGame::update()
             int questionId;
             while ((questionId = firstUnanswered(mRound2, mRound2Theme)) != 0)
             {
-                UserAnswered::create(mOrder.current(), mGameId, questionId, 0);
+                UserAnswered::create(mOrder.current(), mGameId, questionId);
             }
 
             if (firstUnanswered(mRound2) == 0)
             {
+                qDebug() << "No more questions";
                 auto usersIds = getTopUsers(3);
 
                 mOrder.clear();
@@ -498,6 +508,7 @@ void CurrentGame::update()
                 if(rc != cipher.end())
                 {
                     setTime(60);
+                    mWordToDecrypt = Ciphers::getById(*rc).word();
                     next(Decrypt);
                 }
                 else
@@ -516,7 +527,7 @@ void CurrentGame::update()
     case Round3:
         if (QDateTime::currentDateTime() >= mUntil || firstUnanswered(mRound3) == 0)
         {
-            UserAnswered::create(mOrder.current(), mGameId, mRound3[mRound3Index], 0);
+            UserAnswered::create(mOrder.current(), mGameId, mRound3[mRound3Index]);
 
             if (firstUnanswered(mRound3) == 0)
             {
@@ -702,7 +713,7 @@ int CurrentGame::firstUnanswered(const QVector<int> &questionIds, const QString 
         if (!theme.isNull() && question.theme() != theme)
             continue;
 
-        if (!UserAnswered::getUsersIds(mGameId, questionId).isEmpty())
+        if (UserAnswered::getUsersIds(mGameId, questionId).isEmpty())
             return questionId;
     }
 
@@ -717,7 +728,9 @@ CurrentGame::States CurrentGame::currentState() const
 QString CurrentGame::encrypted(const QString &mEncryptedWord)
 {
     QString result;
-    for (auto letter : mEncryptedWord)
+
+    qDebug() << "Вход:" << mEncryptedWord;
+    for (auto letter : mEncryptedWord.toUpper())
     {
         if (letter == "А" || letter == "Б" || letter == "В")
         {
@@ -760,6 +773,6 @@ QString CurrentGame::encrypted(const QString &mEncryptedWord)
             result += "0";
         }
     }
-
+    qDebug() << "Выход:" << result;
     return result;
 }

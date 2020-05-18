@@ -25,6 +25,7 @@ void onGameJoin(const HttpRequest &request, HttpResponse &response);
 void onGameList(const HttpRequest &request, HttpResponse &response);
 void onGameListOpen(const HttpRequest &request, HttpResponse &response);
 void onGameUpdate(const HttpRequest &request, HttpResponse &response);
+void onGameQuit(const HttpRequest &request, HttpResponse &response);
 
 void onGameStart(const HttpRequest &request, HttpResponse &response);
 void onGameStatus(const HttpRequest &request, HttpResponse &response);

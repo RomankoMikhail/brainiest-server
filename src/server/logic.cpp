@@ -12,7 +12,6 @@ Logic::Logic(QObject *parent) : QObject(parent)
 
 void Logic::check()
 {
-    qDebug() << "Tick";
     for(auto key : Singleton::games().keys())
     {
         Singleton::games()[key].update();

@@ -4,18 +4,51 @@
 const auto CREATE = QString(
     R"(INSERT INTO `user_answered`(`userid`, `gameid`, `questionid`, `answerid`) VALUES(?, ?, ?, ?))");
 
+const auto CREATE_2 =
+    QString(R"(INSERT INTO `user_answered`(`userid`, `gameid`, `questionid`, `answerid`) VALUES(?, ?, ?, NULL))");
+
 const auto UPDATE = QString(
     R"(UPDATE `user_answered` SET `answerid` = ? WHERE `userid` = ? and `gameid` = ? and `questionid` = ?)");
 
 const auto SELECT_BY_ID = QString(
     R"(SELECT `answerid` FROM `user_answered` WHERE `userid` = ? and `gameid` = ? and `questionid` = ?)");
 
-const auto SELECT_USERS = QString(
-    R"(SELECT userid FROM user_answered WHERE gameid = ? and questionid = ?)");
+const auto SELECT_USERS =
+    QString(R"(SELECT userid FROM user_answered WHERE gameid = ? and questionid = ?)");
 
-const auto DELETE =
-    QString(R"(DELETE FROM `user_answered` WHERE `userid` = ? and `gameid` = ? and `questionid` = ?)");
+const auto DELETE = QString(
+    R"(DELETE FROM `user_answered` WHERE `userid` = ? and `gameid` = ? and `questionid` = ?)");
 
+
+UserAnswered UserAnswered::create(int userId, int gameId, int questionId)
+{
+    UserAnswered newUserAnswered;
+
+    newUserAnswered.mQuestionId = questionId;
+    newUserAnswered.mAnswerId   = 0;
+    newUserAnswered.mUserId     = userId;
+    newUserAnswered.mGameId     = gameId;
+
+    QSqlQuery query(Singleton::database().database());
+
+    query.prepare(CREATE_2);
+    query.addBindValue(userId);
+    query.addBindValue(gameId);
+    query.addBindValue(questionId);
+
+
+    if (!query.exec())
+    {
+        qDebug() << query.lastError();
+        qDebug() << query.lastQuery();
+        qDebug() << query.lastError().databaseText();
+        return UserAnswered();
+    }
+
+    newUserAnswered.mIsValid = true;
+
+    return newUserAnswered;
+}
 
 UserAnswered UserAnswered::create(int userId, int gameId, int questionId, int answerId)
 {
@@ -23,8 +56,8 @@ UserAnswered UserAnswered::create(int userId, int gameId, int questionId, int an
 
     newUserAnswered.mQuestionId = questionId;
     newUserAnswered.mAnswerId   = answerId;
-    newUserAnswered.mUserId    = userId;
-    newUserAnswered.mGameId    = gameId;
+    newUserAnswered.mUserId     = userId;
+    newUserAnswered.mGameId     = gameId;
 
     QSqlQuery query(Singleton::database().database());
 
@@ -60,9 +93,9 @@ UserAnswered UserAnswered::getById(int userId, int gameId, int questionId)
 
     UserAnswered userAnswered;
     userAnswered.mQuestionId = questionId;
-    userAnswered.mGameId   = gameId;
-    userAnswered.mUserId   = userId;
-    userAnswered.mAnswerId    = query.value(0).toInt();
+    userAnswered.mGameId     = gameId;
+    userAnswered.mUserId     = userId;
+    userAnswered.mAnswerId   = query.value(0).toInt();
     userAnswered.mIsValid    = true;
 
     return userAnswered;
@@ -75,8 +108,11 @@ QList<int> UserAnswered::getUsersIds(int gameId, int questionId)
     QSqlQuery query(Singleton::database().database());
 
     query.prepare(SELECT_USERS);
+
     query.addBindValue(gameId);
     query.addBindValue(questionId);
+
+    query.exec();
 
     while (query.next())
     {
@@ -102,7 +138,7 @@ bool UserAnswered::update()
     {
         qDebug() << query.lastError().text();
     }
-
+    query.finish();
     return mIsValid;
 }
 
@@ -136,7 +172,6 @@ int UserAnswered::userId() const
     return mUserId;
 }
 
-
 int UserAnswered::gameId() const
 {
     return mGameId;
@@ -146,7 +181,6 @@ int UserAnswered::questionId() const
 {
     return mQuestionId;
 }
-
 
 int UserAnswered::answerId() const
 {
