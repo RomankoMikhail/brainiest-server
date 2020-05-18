@@ -64,6 +64,7 @@ Ciphers Ciphers::getById(int id)
     Ciphers cipher;
     cipher.mId   = id;
     cipher.mWord = query.value(0).toString();
+    cipher.mIsValid = true;
 
     return cipher;
 }
