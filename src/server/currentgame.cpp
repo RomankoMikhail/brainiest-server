@@ -70,6 +70,8 @@ bool CurrentGame::processSelectRound2(const int &userId, const QString &theme)
 
     mRound2Theme = theme;
 
+    next(Round2);
+
     return true;
 }
 
@@ -107,6 +109,8 @@ bool CurrentGame::processSelectRound3(const int &userId, const int &index)
         return false;
 
     mRound3Index = index;
+
+    next(Round3);
 
     return true;
 }
@@ -212,7 +216,7 @@ bool CurrentGame::load(int gameId)
     auto questions = GameHasQuestion::getQuestionIds(gameId);
     auto ciphers   = GameHasCipher::getCiphersIds(gameId);
 
-    if(questions.isEmpty() || ciphers.isEmpty())
+    if (questions.isEmpty() || ciphers.isEmpty())
         return false;
 
     for (auto questionId : questions)
@@ -235,14 +239,14 @@ bool CurrentGame::load(int gameId)
         }
     }
 
-    if(mRound1.isEmpty() || mRound2.isEmpty() || mRound3.isEmpty())
+    if (mRound1.isEmpty() || mRound2.isEmpty() || mRound3.isEmpty())
         return false;
 
     mGameId = gameId;
 
     auto userIds = Player::getUserIds(gameId);
 
-    if(userIds.isEmpty())
+    if (userIds.isEmpty())
         return false;
 
     mOrder.clear();
@@ -259,6 +263,11 @@ bool CurrentGame::load(int gameId)
 
 bool CurrentGame::decrypt(const int &userId, const QString &userAnswer)
 {
+    if (userAnswer.toUpper() == mWordToDecrypt.toUpper())
+        return false;
+
+    mUsersDecrypted.insert(userId, QDateTime::currentDateTime());
+    return true;
 }
 
 bool CurrentGame::answerRound1(const int &userId, const int &userAnswerId)
@@ -323,6 +332,21 @@ bool CurrentGame::selectRound3(const int &userId, const int &index)
     return true;
 }
 
+
+template<typename Iter, typename RandomGenerator>
+Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
+    std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+    std::advance(start, dis(g));
+    return start;
+}
+
+template<typename Iter>
+Iter select_randomly(Iter start, Iter end) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    return select_randomly(start, end, gen);
+}
+
 void CurrentGame::update()
 {
     switch (mCurrentState)
@@ -344,15 +368,70 @@ void CurrentGame::update()
             if (QDateTime::currentDateTime() >= mUntil || everyoneDecrypted())
             {
                 next(Round2Select, [this]() { mRound2Theme = QString(); });
+
+                QVector<std::pair<int, QDateTime>> items;
+
+                for (auto it = mUsersDecrypted.begin(); it != mUsersDecrypted.end(); ++it)
+                {
+                    if (!mOrder.contains(it.key()))
+                        continue;
+
+                    items.append(std::pair<int, QDateTime>(it.key(), it.value()));
+                }
+
+                std::sort(items.begin(), items.end(),
+                          [](const std::pair<int, QDateTime> &a, const std::pair<int, QDateTime> &b)
+                              -> bool { return a.second < b.second; });
+
+                auto oldOrder = mOrder.get();
+
+                mOrder.clear();
+                for (auto pair : items)
+                {
+                    mOrder.append(pair.first);
+                }
+
+                for (auto element : oldOrder)
+                {
+                    if (!mOrder.contains(element))
+                        mOrder.append(element);
+                }
                 // Set new order
             }
             break;
 
         case Round2:
-            if (QDateTime::currentDateTime() >= mUntil)
+            if (QDateTime::currentDateTime() >= mUntil || everyoneDecrypted())
             {
                 next(Round3Select, [this]() { mRound3Index = 0; });
-                // Set new order
+
+                QVector<std::pair<int, QDateTime>> items;
+
+                for (auto it = mUsersDecrypted.begin(); it != mUsersDecrypted.end(); ++it)
+                {
+                    if (!mOrder.contains(it.key()))
+                        continue;
+
+                    items.append(std::pair<int, QDateTime>(it.key(), it.value()));
+                }
+
+                std::sort(items.begin(), items.end(),
+                          [](const std::pair<int, QDateTime> &a, const std::pair<int, QDateTime> &b)
+                              -> bool { return a.second < b.second; });
+
+                auto oldOrder = mOrder.get();
+
+                mOrder.clear();
+                for (auto pair : items)
+                {
+                    mOrder.append(pair.first);
+                }
+
+                for (auto element : oldOrder)
+                {
+                    if (!mOrder.contains(element))
+                        mOrder.append(element);
+                }
             }
             break;
 
@@ -379,36 +458,95 @@ void CurrentGame::update()
                 for (auto id : usersIds)
                     mOrder.append(id);
 
-                setTime(60);
-                next(Decrypt);
+                auto cipher = GameHasCipher::getCiphersIds(mGameId);
+                auto rc = select_randomly(cipher.begin(), cipher.end());
+
+                if(rc != cipher.end())
+                {
+                    setTime(60);
+                    next(Decrypt);
+                }
+                else
+                {
+                    next(Round2Select);
+                }
             }
         }
         break;
 
     case Round2:
-        if (QDateTime::currentDateTime() >= mUntil || false)
+        if (QDateTime::currentDateTime() >= mUntil || firstUnanswered(mRound2) == 0)
         {
             int questionId;
             while ((questionId = firstUnanswered(mRound2, mRound2Theme)) != 0)
             {
                 UserAnswered::create(mOrder.current(), mGameId, questionId, 0);
             }
-            mOrder.advance();
-            next(Round2Select);
+
+            if (firstUnanswered(mRound2) == 0)
+            {
+                auto usersIds = getTopUsers(3);
+
+                mOrder.clear();
+
+                for (auto id : usersIds)
+                    mOrder.append(id);
+
+                auto cipher = GameHasCipher::getCiphersIds(mGameId);
+                auto rc = select_randomly(cipher.begin(), cipher.end());
+
+                if(rc != cipher.end())
+                {
+                    setTime(60);
+                    next(Decrypt);
+                }
+                else
+                {
+                    next(Round3Select);
+                }
+            }
+            else
+            {
+                mOrder.advance();
+                next(Round2Select);
+            }
         }
         break;
 
     case Round3:
-        if (QDateTime::currentDateTime() >= mUntil || false)
+        if (QDateTime::currentDateTime() >= mUntil || firstUnanswered(mRound3) == 0)
         {
             UserAnswered::create(mOrder.current(), mGameId, mRound3[mRound3Index], 0);
 
-            mOrder.advance();
-            next(Round3Select);
+            if (firstUnanswered(mRound3) == 0)
+            {
+                auto usersIds = getTopUsers(1);
+
+                mOrder.clear();
+
+                for (auto id : usersIds)
+                {
+                    mOrder.append(id);
+                    auto player = Player::getById(mGameId, id);
+                    player.setWon(1);
+                    player.update();
+                }
+
+                next(End);
+            }
+            else
+            {
+                mOrder.advance();
+                next(Round3Select);
+            }
         }
         break;
 
+    case End:
+        qDebug() << "Game ended";
+        break;
     default:
+
         break;
     }
 }
