@@ -179,12 +179,14 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/question/info", onQuestionInfo);
     server.registerHttpRoute("/api/question/update", onQuestionUpdate);
     server.registerHttpRoute("/api/question/add", onQuestionAdd);
+    server.registerHttpRoute("/api/question/add/batch", onQuestionAddBatch);
     server.registerHttpRoute("/api/question/list", onQuestionList);
     server.registerHttpRoute("/api/question/list/detailed", onQuestionListDetailed);
     server.registerHttpRoute("/api/question/answers/list", onQuestionListAnswers);
     server.registerHttpRoute("/api/question/answers/add", onQuestionAddAnswer);
     server.registerHttpRoute("/api/question/answers/remove", onQuestionRemoveAnswer);
     server.registerHttpRoute("/api/question/answers/update", onQuestionUpdateAnswer);
+    server.registerHttpRoute("/api/question/remove", onQuestionRemove);
     server.registerHttpRoute("/api/question/themes", onQuestionThemes);
 
     server.registerHttpRoute("/api/ciphers/info", onCiphersInfo);
