@@ -66,6 +66,7 @@ Answer Answer::getById(int id)
     Answer answer;
     answer.mId     = id;
     answer.mAnswer = query.value(0).toString();
+    answer.mIsValid = true;
 
     return answer;
 }
