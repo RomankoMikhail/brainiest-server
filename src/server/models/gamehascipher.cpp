@@ -3,10 +3,12 @@
 #include "singleton.hpp"
 
 const auto CREATE = QString(
-    R"(INSERT INTO `game_has_ciphers`(`gameid`, `ciphersid`) VALUES(?, ?))");
+    R"(INSERT INTO `game_has_ciphers`(`gameid`, `ciphersid`, `round`) VALUES(?, ?, ?))");
 
 const auto SELECT_BY_ID = QString(
     R"(SELECT * FROM `game_has_ciphers` WHERE `gameid` = ? and `ciphersid` = ?)");
+
+const auto SELECT_BY_ROUND = QString(R"(SELECT `ciphersid` FROM `game_has_ciphers` WHERE `gameid` = ? and `round` = ?)");
 
 const auto SELECT_CIPHERS_BY_GAME =
     QString(R"(SELECT `ciphersid` FROM `game_has_ciphers` WHERE `gameid` = ?)");
@@ -41,18 +43,20 @@ bool GameHasCipher::remove()
     return true;
 }
 
-GameHasCipher GameHasCipher::create(int gameId, int ciphersId)
+GameHasCipher GameHasCipher::create(int gameId, int ciphersId, int round)
 {
     GameHasCipher newGameHasCiphers;
 
     newGameHasCiphers.mCiphersId = ciphersId;
     newGameHasCiphers.mGameId    = gameId;
+    newGameHasCiphers.mRound = round;
 
     QSqlQuery query(Singleton::database().database());
 
     query.prepare(CREATE);
     query.addBindValue(gameId);
     query.addBindValue(ciphersId);
+    query.addBindValue(round);
 
     if (!query.exec())
     {
@@ -80,6 +84,7 @@ GameHasCipher GameHasCipher::getById(int gameId, int ciphersId)
     GameHasCipher gameHasQuestion;
     gameHasQuestion.mCiphersId = ciphersId;
     gameHasQuestion.mGameId    = gameId;
+    gameHasQuestion.mRound     = query.value("round").toInt();
     gameHasQuestion.mIsValid   = true;
 
     return gameHasQuestion;
@@ -112,6 +117,26 @@ QList<int> GameHasCipher::getCiphersIds(int gameId)
 
     query.prepare(SELECT_CIPHERS_BY_GAME);
     query.addBindValue(gameId);
+
+    query.exec();
+
+    while (query.next())
+    {
+        ids.push_back(query.value(0).toInt());
+    }
+
+    return ids;
+}
+
+QList<int> GameHasCipher::getCiphersIdsByRound(int gameId, int round)
+{
+    QList<int> ids;
+
+    QSqlQuery query(Singleton::database().database());
+
+    query.prepare(SELECT_BY_ROUND);
+    query.addBindValue(gameId);
+    query.addBindValue(round);
 
     query.exec();
 

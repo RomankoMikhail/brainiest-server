@@ -474,7 +474,7 @@ void CurrentGame::update()
                 for (auto id : usersIds)
                     mOrder.append(id);
 
-                auto cipher = GameHasCipher::getCiphersIds(mGameId);
+                auto cipher = GameHasCipher::getCiphersIdsByRound(mGameId, 1);
                 auto rc     = select_randomly(cipher.begin(), cipher.end());
 
                 if (rc != cipher.end())
@@ -511,7 +511,7 @@ void CurrentGame::update()
                 for (auto id : usersIds)
                     mOrder.append(id);
 
-                auto cipher = GameHasCipher::getCiphersIds(mGameId);
+                auto cipher = GameHasCipher::getCiphersIdsByRound(mGameId, 2);
                 auto rc     = select_randomly(cipher.begin(), cipher.end());
 
                 if (rc != cipher.end())

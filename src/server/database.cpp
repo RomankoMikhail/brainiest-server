@@ -9,7 +9,7 @@ const auto CREATE_CIPHERS = QString(
 const auto CREATE_GAME = QString(
     R"(CREATE TABLE game (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, author_id integer(10) NOT NULL, "date" timestamp NOT NULL, is_open integer(1) NOT NULL, is_complete integer(1) NOT NULL, FOREIGN KEY(author_id) REFERENCES "user"(id)))");
 const auto CREATE_GAME_HAS_CIPHERS = QString(
-    R"(CREATE TABLE game_has_ciphers (gameid integer(10) NOT NULL, ciphersid integer(10) NOT NULL, PRIMARY KEY (gameid, ciphersid), FOREIGN KEY(gameid) REFERENCES game(id), FOREIGN KEY(ciphersid) REFERENCES ciphers(id)))");
+    R"(CREATE TABLE game_has_ciphers (gameid integer(10) NOT NULL, ciphersid integer(10) NOT NULL, round integer(10) NOT NULL, PRIMARY KEY (gameid, ciphersid), FOREIGN KEY(gameid) REFERENCES game(id), FOREIGN KEY(ciphersid) REFERENCES ciphers(id)))");
 const auto CREATE_GAME_HAS_QUESTION = QString(
     R"(CREATE TABLE game_has_question (gameid integer(10) NOT NULL, questionid integer(10) NOT NULL, round integer(10) NOT NULL, PRIMARY KEY (gameid, questionid), FOREIGN KEY(gameid) REFERENCES game(id), FOREIGN KEY(questionid) REFERENCES question(id)))");
 const auto CREATE_PLAYER = QString(

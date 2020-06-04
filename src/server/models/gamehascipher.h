@@ -6,10 +6,11 @@
 class GameHasCipher
 {
 public:
-    static GameHasCipher create(int gameId, int ciphersId);
+    static GameHasCipher create(int gameId, int ciphersId, int round);
     static GameHasCipher getById(int gameId, int ciphersId);
     static QList<int> getGameIds(int ciphersId);
     static QList<int> getCiphersIds(int gameId);
+    static QList<int> getCiphersIdsByRound(int gameId, int round);
 
     bool isValid() const;
 
@@ -21,6 +22,7 @@ private:
     bool mIsValid = false;
     int mGameId;
     int mCiphersId;
+    int mRound;
 };
 
 #endif // GAMEHASCIPHER_H
