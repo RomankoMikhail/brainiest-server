@@ -30,5 +30,8 @@ void onGameQuit(const HttpRequest &request, HttpResponse &response);
 void onGameStart(const HttpRequest &request, HttpResponse &response);
 void onGameStatus(const HttpRequest &request, HttpResponse &response);
 
+void onGameListQuestions(const HttpRequest &request, HttpResponse &response);
+void onGameListCiphers(const HttpRequest &request, HttpResponse &response);
+
 
 #endif // APIGAME_H

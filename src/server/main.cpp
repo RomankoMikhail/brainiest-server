@@ -221,6 +221,8 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/game/ciphers/add", onGameAddCipher);
     server.registerHttpRoute("/api/game/questions/remove", onGameRemoveQuestion);
     server.registerHttpRoute("/api/game/ciphers/remove", onGameRemoveCipher);
+    server.registerHttpRoute("/api/game/questions/list", onGameListQuestions);
+    server.registerHttpRoute("/api/game/ciphers/list", onGameListCiphers);
     server.registerHttpRoute("/api/game/quit", onGameQuit);
 
     server.registerHttpRoute("/api/token/check", onTokenCheck);

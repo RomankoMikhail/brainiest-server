@@ -431,3 +431,48 @@ void onGameRemoveCipher(const HttpRequest &request, HttpResponse &response)
 
     SEND_RESPONSE();
 }
+
+void onGameListQuestions(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+    REQUIRE_INT(id);
+
+    QJsonArray questionsArray;
+
+    for (auto questionId : GameHasQuestion::getQuestionIds(id))
+    {
+        QJsonObject question;
+
+        question["id"]    = questionId;
+        question["round"] = GameHasQuestion::getById(id, questionId).round();
+
+        questionsArray.append(question);
+    }
+
+    QJsonObject o;
+    o["items"] = questionsArray;
+
+    SEND_RESPONSE(o);
+}
+
+void onGameListCiphers(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+    REQUIRE_INT(id);
+
+    QJsonArray ciphersArray;
+
+    for (auto cipherId : GameHasCipher::getCiphersIds(id))
+    {
+        QJsonObject cipher;
+
+        cipher["id"] = cipherId;
+
+        ciphersArray.append(cipher);
+    }
+
+    QJsonObject o;
+    o["items"] = ciphersArray;
+
+    SEND_RESPONSE(o);
+}
