@@ -19,6 +19,9 @@ const auto SELECT_GAME_BY_CIPHERS =
 const auto DELETE = QString(
     R"(DELETE FROM `game_has_ciphers` WHERE `gameid` = ? and `ciphersid` = ?)");
 
+const auto UPDATE = QString(
+    R"(UPDATE `game_has_ciphers` SET `round` = ? WHERE `gameid` = ? and `ciphersid` = ?)");
+
 int GameHasCipher::ciphersId() const
 {
     return mCiphersId;
@@ -41,6 +44,33 @@ bool GameHasCipher::remove()
     mIsValid = false;
 
     return true;
+}
+
+bool GameHasCipher::update()
+{
+    QSqlQuery query(Singleton::database().database());
+
+    query.prepare(UPDATE);
+    query.addBindValue(mRound);
+    query.addBindValue(mGameId);
+    query.addBindValue(mCiphersId);
+
+    bool result = query.exec();
+
+    if (!result)
+        qDebug() << query.lastError().text();
+
+    return result;
+}
+
+int GameHasCipher::round() const
+{
+    return mRound;
+}
+
+void GameHasCipher::setRound(int round)
+{
+    mRound = round;
 }
 
 GameHasCipher GameHasCipher::create(int gameId, int ciphersId, int round)

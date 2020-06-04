@@ -391,8 +391,9 @@ void onGameAddCipher(const HttpRequest &request, HttpResponse &response)
     REQUIRE_TOKEN();
     REQUIRE_INT(id);
     REQUIRE_INT(cipherId);
+    REQUIRE_INT(round);
 
-    if (!GameHasCipher::create(id, cipherId).isValid())
+    if (!GameHasCipher::create(id, cipherId, round).isValid())
         SEND_ERROR(GeneralError);
 
     SEND_RESPONSE();
@@ -467,6 +468,7 @@ void onGameListCiphers(const HttpRequest &request, HttpResponse &response)
         QJsonObject cipher;
 
         cipher["id"] = cipherId;
+        cipher["round"] = GameHasCipher::getById(id, cipherId).round();
 
         ciphersArray.append(cipher);
     }

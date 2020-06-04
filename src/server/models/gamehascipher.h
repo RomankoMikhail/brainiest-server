@@ -18,6 +18,11 @@ public:
     int ciphersId() const;
 
     bool remove();
+    bool update();
+
+    int round() const;
+    void setRound(int round);
+
 private:
     bool mIsValid = false;
     int mGameId;
