@@ -205,11 +205,11 @@ void onQuestionUpdateCorrectAnswer(const HttpRequest &request, HttpResponse &res
     REQUIRE_TOKEN();
 
     auto answersIds = QuestionHasAnswer::getAnswerIds(id);
-    for (const auto &answerId : answersIds)
+    for (const auto &aId : answersIds)
     {
-        auto qua = QuestionHasAnswer::getById(id, answerId);
+        auto qua = QuestionHasAnswer::getById(id, aId);
 
-        if(answerId == correctId)
+        if(aId == answerId)
             qua.setCorrect(1);
         else
             qua.setCorrect(0);
