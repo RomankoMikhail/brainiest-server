@@ -127,10 +127,12 @@ void onQuestionListAnswers(const HttpRequest &request, HttpResponse &response)
 
     for (const auto &answerId : ids)
     {
-        QJsonObject answer;
-        answer["id"] = answerId;
-        answer["correct"] = QuestionHasAnswer::getById(id, answerId).correct();
-        array.append(answer);
+        Answer answer = Answer::getById(answerId);
+        QJsonObject answerObject;
+        answerObject["id"] = answerId;
+        answerObject["correct"] = QuestionHasAnswer::getById(id, answerId).correct();
+        answerObject["answer"] = answer.answer();
+        array.append(answerObject);
     }
 
     QJsonObject object;
