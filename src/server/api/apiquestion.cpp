@@ -286,7 +286,7 @@ void onQuestionAddBatch(const HttpRequest &request, HttpResponse &response)
     Answer ans4 = Answer::create(answer4);
     if(!ans4.isValid())
     {
-        ans4 = Answer::getByAnswer(answer1);
+        ans4 = Answer::getByAnswer(answer4);
         if(!ans4.isValid())
             SEND_ERROR(GeneralError);
     }
