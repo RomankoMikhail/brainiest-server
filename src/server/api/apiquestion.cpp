@@ -197,6 +197,29 @@ void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response)
     SEND_RESPONSE();
 }
 
+void onQuestionUpdateCorrectAnswer(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_INT(id);
+    REQUIRE_INT(correctId);
+
+    REQUIRE_TOKEN();
+
+    auto answersIds = QuestionHasAnswer::getAnswerIds(id);
+    for (const auto &answerId : answersIds)
+    {
+        auto qua = QuestionHasAnswer::getById(id, answerId);
+
+        if(answerId == correctId)
+            qua.setCorrect(1);
+        else
+            qua.setCorrect(0);
+
+        qua.update();
+    }
+
+    SEND_RESPONSE();
+}
+
 void onQuestionListDetailed(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_TOKEN();

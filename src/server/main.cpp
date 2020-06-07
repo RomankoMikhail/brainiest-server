@@ -188,6 +188,9 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/question/answers/update", onQuestionUpdateAnswer);
     server.registerHttpRoute("/api/question/remove", onQuestionRemove);
     server.registerHttpRoute("/api/question/themes", onQuestionThemes);
+    server.registerHttpRoute("/api/question/answers/correct", onQuestionUpdateCorrectAnswer);
+
+    // onQuestionUpdateCorrectAnswer
 
     server.registerHttpRoute("/api/ciphers/info", onCiphersInfo);
     server.registerHttpRoute("/api/ciphers/update", onCiphersUpdate);
@@ -250,5 +253,3 @@ int main(int argc, char *argv[])
 
     return QCoreApplication::exec();
 }
-
-
