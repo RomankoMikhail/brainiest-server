@@ -3,7 +3,7 @@
 #include <QtSql>
 
 const auto CREATE_ANSWER = QString(
-    R"(CREATE TABLE answer (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, answer varchar(100) NOT NULL))");
+    R"(CREATE TABLE answer (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, answer varchar(100) NOT NULL UNIQUE))");
 const auto CREATE_CIPHERS = QString(
     R"(CREATE TABLE ciphers (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, word varchar(20) NOT NULL UNIQUE))");
 const auto CREATE_GAME = QString(
