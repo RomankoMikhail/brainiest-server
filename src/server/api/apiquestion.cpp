@@ -200,7 +200,7 @@ void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response)
 void onQuestionUpdateCorrectAnswer(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_INT(id);
-    REQUIRE_INT(correctId);
+    REQUIRE_INT(answerId);
 
     REQUIRE_TOKEN();
 

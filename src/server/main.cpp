@@ -190,8 +190,6 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/question/themes", onQuestionThemes);
     server.registerHttpRoute("/api/question/answers/correct", onQuestionUpdateCorrectAnswer);
 
-    // onQuestionUpdateCorrectAnswer
-
     server.registerHttpRoute("/api/ciphers/info", onCiphersInfo);
     server.registerHttpRoute("/api/ciphers/update", onCiphersUpdate);
     server.registerHttpRoute("/api/ciphers/add", onCiphersAdd);
