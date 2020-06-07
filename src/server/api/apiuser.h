@@ -11,5 +11,6 @@ void onUserLogin(const HttpRequest &request, HttpResponse &response);
 void onUserRegister(const HttpRequest &request, HttpResponse &response);
 void onUserUpdate(const HttpRequest &request, HttpResponse &response);
 void onTokenCheck(const HttpRequest &request, HttpResponse &response);
+void onUserGet(const HttpRequest &request, HttpResponse &response);
 
 #endif // APIUSER_H

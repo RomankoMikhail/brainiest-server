@@ -69,6 +69,22 @@ void onUserUpdate(const HttpRequest &request, HttpResponse &response)
     return;
 }
 
+void onUserGet(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+
+    QJsonObject object;
+    User user = User::getById(Singleton::tokens().value(token));
+
+    object["id"]         = user.id();
+    object["name"]       = user.name();
+    object["surname"]    = user.surname();
+    object["patronymic"] = user.patronymic();
+    object["username"]   = user.username();
+
+    SEND_RESPONSE(object);
+}
+
 void onUserChangePassword(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_STRING(password);

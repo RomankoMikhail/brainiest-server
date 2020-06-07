@@ -173,6 +173,7 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/user/register", onUserRegister);
     server.registerHttpRoute("/api/user/list", onUserList);
     server.registerHttpRoute("/api/user/info", onUserInfo);
+    server.registerHttpRoute("/api/user/get", onUserGet);
     server.registerHttpRoute("/api/user/update", onUserUpdate);
     server.registerHttpRoute("/api/user/password/change", onUserChangePassword);
 
