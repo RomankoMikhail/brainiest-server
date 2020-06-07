@@ -19,7 +19,7 @@ Ciphers Ciphers::create(QString word)
     QSqlQuery query(Singleton::database().database());
 
     query.prepare(CREATE);
-    query.addBindValue(word);
+    query.addBindValue(word.toUpper());
 
     if (!query.exec())
     {
