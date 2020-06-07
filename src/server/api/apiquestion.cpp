@@ -125,11 +125,11 @@ void onQuestionListAnswers(const HttpRequest &request, HttpResponse &response)
 
     QJsonArray array;
 
-    for (const auto &id : ids)
+    for (const auto &answerId : ids)
     {
         QJsonObject answer;
-        answer["id"] = id;
-        answer["correct"] = QuestionHasAnswer::getById(id).correct();
+        answer["id"] = answerId;
+        answer["correct"] = QuestionHasAnswer::getById(id, answerId).correct();
         array.append(answer);
     }
 
