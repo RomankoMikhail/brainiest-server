@@ -14,7 +14,7 @@ Ciphers Ciphers::create(QString word)
 {
     Ciphers newCipher;
 
-    newCipher.mWord = word;
+    newCipher.mWord = word.toUpper();
 
     QSqlQuery query(Singleton::database().database());
 
@@ -81,12 +81,12 @@ bool Ciphers::isValid() const
 
 QString Ciphers::word() const
 {
-    return mWord;
+    return mWord.toUpper();
 }
 
 void Ciphers::setWord(const QString &word)
 {
-    mWord = word;
+    mWord = word.toUpper();
 }
 
 bool Ciphers::update()
