@@ -220,6 +220,7 @@ void onGameInfo(const HttpRequest &request, HttpResponse &response)
         QJsonObject cipher;
 
         cipher["id"] = cipherId;
+		cipher["round"] = GameHasCipher::getById(id, cipherId).round();
 
         ciphersArray.append(cipher);
     }
