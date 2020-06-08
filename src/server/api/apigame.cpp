@@ -24,7 +24,10 @@ void onGameAdd(const HttpRequest &request, HttpResponse &response)
     if (!game.isValid())
         SEND_ERROR(GeneralError);
 
-    SEND_RESPONSE();
+    QJsonObject item;
+	item["id"] = game.id();
+	
+    SEND_RESPONSE(item);
 }
 
 void onGameList(const HttpRequest &request, HttpResponse &response)

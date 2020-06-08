@@ -51,7 +51,10 @@ void onQuestionAdd(const HttpRequest &request, HttpResponse &response)
     if (!questionElement.isValid())
         SEND_ERROR(GeneralError);
 
-    SEND_RESPONSE();
+    QJsonObject item;
+	item["id"] = questionElement.id();
+	
+    SEND_RESPONSE(item);
 }
 
 void onQuestionUpdate(const HttpRequest &request, HttpResponse &response)

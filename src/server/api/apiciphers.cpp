@@ -44,7 +44,10 @@ void onCiphersAdd(const HttpRequest &request, HttpResponse &response)
     if (!cipher.isValid())
         SEND_ERROR(GeneralError);
 
-    SEND_RESPONSE();
+    QJsonObject item;
+	item["id"] = cipher.id();
+	
+    SEND_RESPONSE(item);
 }
 
 void onCiphersUpdate(const HttpRequest &request, HttpResponse &response)

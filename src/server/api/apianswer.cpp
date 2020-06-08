@@ -38,13 +38,16 @@ void onAnswerAdd(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_STRING(answer);
     REQUIRE_TOKEN();
-
+	
     Answer answerElement = Answer::create(answer);
 
     if (!answerElement.isValid())
         SEND_ERROR(GeneralError);
-
-    SEND_RESPONSE();
+	
+	QJsonObject item;
+	item["id"] = answerElement.id();
+	
+    SEND_RESPONSE(item);
 }
 
 void onAnswerUpdate(const HttpRequest &request, HttpResponse &response)
