@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
     server.registerHttpRoute("/api/question/add/batch", onQuestionAddBatch);
     server.registerHttpRoute("/api/question/list", onQuestionList);
     server.registerHttpRoute("/api/question/list/detailed", onQuestionListDetailed);
+	server.registerHttpRoute("/api/question/list/theme", onQuestionListTheme);
     server.registerHttpRoute("/api/question/answers/list", onQuestionListAnswers);
     server.registerHttpRoute("/api/question/answers/add", onQuestionAddAnswer);
     server.registerHttpRoute("/api/question/answers/remove", onQuestionRemoveAnswer);

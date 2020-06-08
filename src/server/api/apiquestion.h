@@ -17,7 +17,7 @@ void onQuestionThemes(const HttpRequest &request, HttpResponse &response);
 void onQuestionUpdate(const HttpRequest &request, HttpResponse &response);
 void onQuestionUpdateAnswer(const HttpRequest &request, HttpResponse &response);
 void onQuestionUpdateCorrectAnswer(const HttpRequest &request, HttpResponse &response);
-
+void onQuestionListTheme(const HttpRequest &request, HttpResponse &response);
 
 void onQuestionAddBatch(const HttpRequest &request, HttpResponse &response);
 void onQuestionRemove(const HttpRequest &request, HttpResponse &response);

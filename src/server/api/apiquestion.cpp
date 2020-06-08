@@ -38,6 +38,34 @@ void onQuestionList(const HttpRequest &request, HttpResponse &response)
     SEND_RESPONSE(object);
 }
 
+void onQuestionListTheme(const HttpRequest &request, HttpResponse &response)
+{
+    REQUIRE_TOKEN();
+	REQUIRE_STRING(theme);
+
+    auto ids = Question::getByTheme(theme);
+
+    QJsonObject object;
+    QJsonArray array;
+
+    for (const auto &id : ids)
+    {
+        QJsonObject item;
+
+        Question question = Question::getById(id);
+
+        item["id"]       = question.id();
+        item["theme"]    = question.theme();
+        item["question"] = question.question();
+        item["type"]     = question.type();
+
+        array.append(item);
+    }
+
+    object["items"] = array;
+    SEND_RESPONSE(object);
+}
+
 void onQuestionAdd(const HttpRequest &request, HttpResponse &response)
 {
     REQUIRE_STRING(theme);
