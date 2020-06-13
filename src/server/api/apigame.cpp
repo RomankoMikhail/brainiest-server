@@ -26,7 +26,7 @@ void onGameAdd(const HttpRequest &request, HttpResponse &response)
 
     QJsonObject item;
 	item["id"] = game.id();
-	
+
     SEND_RESPONSE(item);
 }
 
@@ -225,8 +225,16 @@ void onGameInfo(const HttpRequest &request, HttpResponse &response)
         ciphersArray.append(cipher);
     }
 
+    QJsonArray playersArray;
+
+    for (auto playerId : Player::getUserIds(id))
+    {
+      playersArray.append(playerId);
+    }
+
     object["questions"] = questionsArray;
     object["ciphers"]   = ciphersArray;
+    object["players"]   = playersArray;
 
     SEND_RESPONSE(object);
 }
